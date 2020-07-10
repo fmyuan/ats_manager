@@ -1,0 +1,49 @@
+#%Module1.0#####################################################################
+##
+## modules modulefile
+##
+proc ModulesHelp { } {
+    global mpi_bin
+
+    puts stderr "\tThis module sets environment variables for using"
+    puts stderr "\tATS in dev mode (all Debug builds) with gcc 4.7.2"
+    puts stderr "\tand OpenMPI 1.8.1."
+    puts stderr ""
+}
+
+module-whatis   "ATS debug build with gcc-4.7.2 and openmpi-1.8.1"
+
+set amanziname dev
+set tplname dev
+set mybuildtype Debug
+set OS_path Ubuntu-12.04-x86_64
+
+## likely nothing below here needs to change
+## =============================================================================
+
+module load seacas/dev
+
+setenv MPI_DIR /usr/local/Cellar/open-mpi/4.0.3
+
+setenv AMANZI_TPLS_DIR /Users/uec/codes/ats/amanzi-tpls/install-${tplname}
+setenv AMANZI_TPLS_BUILD_DIR /Users/uec/codes/ats/amanzi-tpls/build-${tplname}
+setenv AMANZI_TPLS_CONFIG /Users/uec/codes/ats/amanzi-tpls/install-${tplname}/share/cmake/amanzi-tpl-config.cmake
+
+setenv AMANZI_SRC_DIR /Users/uec/codes/ats/amanzi/repos/${amanziname}
+setenv AMANZI_BUILD_DIR /Users/uec/codes/ats/amanzi/build-ats-${amanziname}
+setenv AMANZI_DIR /Users/uec/codes/ats/amanzi/install-ats-${amanziname}
+
+setenv ATS_SRC_DIR /Users/uec/codes/ats/amanzi/repos/${amanziname}/src/physics/ats
+setenv ATS_DIR /Users/uec/codes/ats/amanzi/install-ats-${amanziname}
+
+setenv AMANZI_TPLS_BUILD_TYPE ${mybuildtype}
+setenv AMANZI_BUILD_TYPE ${mybuildtype}
+
+setenv GTAGSLIBPATH /Users/uec/codes/ats/amanzi/repos/${amanziname}:/Users/uec/codes/ats/amanzi-tpls/build-${tplname}
+
+prepend-path    PATH            /Users/uec/codes/ats/amanzi/install-ats-${amanziname}/bin
+prepend-path    PATH            /Users/uec/codes/ats/ats/repos/dev/tools/utils
+prepend-path    PYTHONPATH      /Users/uec/codes/ats/amanzi/repos/dev/src/physics/ats/tools/utils
+prepend-path    PYTHONPATH      /Users/uec/codes/ats/amanzi/repos/dev/src/physics/ats/tools/meshing_ats/meshing_ats
+prepend-path    PYTHONPATH      /Users/uec/codes/ats/amanzi/repos/${amanziname}/tools/amanzi_xml
+
