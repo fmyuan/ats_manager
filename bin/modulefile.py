@@ -1,12 +1,16 @@
 import argparse
+import sys,os
 
-def fill(file_in, file_out, **kwargs):
+def fill(file_in, file_out, substitutions):
+    print("Got substitutions:")
+    for s in substitutions:
+        print("{}: {}".format(s,substitutions[s]))
     with open(file_in,'r') as fin:
-        lines = file_in.readlines()
+        template = '\n'.join(fin.readlines())
 
-    lines.replace(**kwargs)
+    modfile = template.format(**substitutions)
     with open(file_out, 'w') as fout:
-        fout.write(lines)
+        fout.write(modfile)
     return
 
 def get_arg_parser():
@@ -33,11 +37,9 @@ def get_arg_parser():
     parser.add_argument('--tpls-build-type', type=str,
                         help='Type of build',
                         default='RelWithDebInfo')
-    parser.add_argument('--tools-mpi', type=bool,
+    parser.add_argument('--tools-mpi',
                         action='store_true',
                         help='Use bootstrap MPI')
-    parser.add_argument('file', type=str,
-                        help='Module file name, e.g. ats/master/Debug')
     return parser
 
 
@@ -47,7 +49,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # set the template file
-    if args.ats == 'none':
+    if args.ats is None:
         template = os.path.join(os.environ['ATS_BASE'], 'bin', 'templates',
                                 'amanzi_modulefile.template')
     else:
@@ -55,10 +57,18 @@ if __name__ == '__main__':
                                 'ats_modulefile.template')
 
     # set the output file
-    outfile_root = os.environ['ATS_BASE']
-    outfile = os.path.join(outfile_root, modulefiles, args.file)
-    outfile_dir = os.path.join(os.path.split(outfile)[:-1])
-    os.mkdir(outfile_dir)
+    outfile_list = [os.environ['ATS_BASE'],'modulefiles']
+    if args.ats is None:
+        outfile_list.append('amanzi')
+        outfile_list.append(args.amanzi)
+    else:
+        outfile_list.append('ats')
+        outfile_list.append('{}-{}'.format(args.amanzi,args.ats))
+
+    outfile_dir = os.path.join(*outfile_list)
+    os.makedirs(outfile_dir, exist_ok=True)
+    outfile_list.append(args.build_type)
+    outfile = os.path.join(*outfile_list)
 
     # trilinos build_type arg
     if args.trilinos_build_type is None:
@@ -76,6 +86,6 @@ if __name__ == '__main__':
     else:
         args.mpi_dir = os.environ['MPI_DIR']
 
-    fill(template, outfile, **args.__dict__)
+    fill(template, outfile, vars(args))
     sys.exit(0)
     
