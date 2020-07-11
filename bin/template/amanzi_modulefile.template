@@ -1,0 +1,33 @@
+#%Module1.0#####################################################################
+##
+## modules modulefile
+##
+proc ModulesHelp { } {
+    global mpi_bin
+
+    puts stderr "\tAmanzi {amanzi} repository, {build_type} build"
+    puts stderr ""
+}
+
+module-whatis   "Amanzi {amanzi} {build_type} build"
+# #############################################################################
+
+set ats_base $env(ATS_BASE)
+
+setenv MPI_DIR {mpi_dir}
+
+setenv AMANZI_TPLS_DIR $\{ats_base\}/amanzi-tpls/install-{tpls}/{tpls_build_type}
+setenv AMANZI_TPLS_BUILD_DIR $\{ats_base\}/amanzi-tpls/build-{tpls}/{tpls_build_type}
+setenv AMANZI_TPLS_CONFIG $\{ats_base\}/amanzi-tpls/install-{tpls}/{tpls_build_type}/share/cmake/amanzi-tpl-config.cmake
+
+setenv AMANZI_SRC_DIR $\{ats_base\}/amanzi/repos/{amanzi_repo}
+setenv AMANZI_BUILD_DIR $\{ats_base\}/amanzi/build-{amanzi}/{build_type}
+setenv AMANZI_DIR $\{ats_base\}/amanzi/install-{amanzi}/{build_type}
+
+setenv AMANZI_TPLS_BUILD_TYPE {tpls_build_type}
+setenv AMANZI_BUILD_TYPE {build_type}
+
+prepend-path    PATH            $\{ats_base\}/amanzi/install-{amanzi}/{build_type}/bin
+prepend-path    PYTHONPATH      $\{ats_base\}/amanzi-tpls/install-{tpls}/{tpls_build_type}/SEACAS/lib
+prepend-path    PYTHONPATH      $\{ats_base\}/amanzi/repos/{amanzi}/tools/amanzi_xml
+
