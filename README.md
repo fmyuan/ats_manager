@@ -68,7 +68,7 @@ Decide where to put ATS, and add it to your shell init script, and clone this re
 Configure
 ---------
 
-Setup of this package is controlled in the file `bin/config.py`.  Feel free to edit this file!
+Setup of this package is controlled in the file `bin/config.sh`.  Feel free to edit this file!
 
 
 Usage
