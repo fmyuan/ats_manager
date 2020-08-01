@@ -1,5 +1,5 @@
-ATS Deployment
-==============
+ATS Manager
+===========
 
 This is my own personal preference for how to set up managing multiple
 ATS and Amanzi installations on a machine.
@@ -55,20 +55,12 @@ Installation
 
 Note this is installation of _this_ package, not of ATS or Amanzi.  That comes next...
 
-Decide where to put ATS, and add it to your shell init script, and clone this repo:
+Decide where to put ATS, download this repo, and run the setup script.
 
     export ATS_BASE=~/code/ats
-    echo "export ATS_BASE=${ATS_BASE}" >> ~/.bashrc
-    echo "module use -a ${ATS_BASE}/modulefiles" >> ~/.bashrc
     mkdir -p ${ATS_BASE}
-    rmdir ${ATS_BASE}
-    git clone https://github.com/ecoon/ats_setup.git ${ATS_BASE}
-    cd ${ATS_BASE}
-
-Configure
----------
-
-Setup of this package is controlled in the file `bin/config.sh`.  Feel free to edit this file!
+    git clone https://github.com/ecoon/ats_manager.git ${ATS_BASE}/ats_manager
+    . ${ATS_BASE}/ats_manager/setup_ats_manager.sh
 
 
 Usage
@@ -80,60 +72,24 @@ Scripts provided here make it fairly easy to clone, configure, install, run, and
 Set up an existing branch of Amanzi or ATS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use the scripts, `scripts/setup_existing_ats.sh` or `scripts/setup_existing_amanzi.sh`.
-
-
-To clone, configure, and build an existing branch of ATS (here we assume master for both Amanzi and ATS):
-
-    . bin/setup_existing_ats.sh --ats=master --amanzi=master --ats-regression-tests=master --disable-geochemistry
-
-Note that this will use an existing repo if possible -- so for instance, if you already have isntalled Amanzi at master, and want to use that Amanzi and TPLs with ATS branch `dev/subgrid`:
-
-    . bin/setup_existing_ats.sh --ats=dev/subgrid --amanzi=master
-
-will do the right thing.  If you would like to re-install Amanzi and TPLs:
-
-    . bin/setup_existing_ats.sh --ats=dev/subgrid --amanzi=master --clobber-amanzi --clobber-tpls
-
-Similarly, for Amanzi:
-
-    . bin/setup_existing_amanzi.sh --amanzi=master
-
-
-Pull and update an existing Amanzi and/or ATS
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This pulls new changes to an existing installation and rebuilds.  Note that all repos default to master:
-
-    . bin/update_ats.sh master
-    . bin/update_amanzi.sh master
-
-Note the slightly different syntax.  As these already exist, master here refers not to the branch, but to the modulefile name.  These should almost always be the same as the ATS branch (in the case of `update_ats.sh` or the Amanzi branch (respectively).
-
+**TBD**
 
 Create a new branch and run setup
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Scripts are also provided to set up a new branch for development.  Always do this.  Don't do development in an existing branch, unless it is your branch that you started elsewhere.
+**TBD**
 
-    . bin/setup_new_ats.sh --amanzi=master --ats=ecoon/new_stuff
-    . bin/setup_new_ats.sh --amanzi=ecoon/new_stuff --ats=ecoon/new_stuff
-    . bin/setup_new_amanzi.sh --amanzi=ecoon/new_stuff
+Pull and update an existing Amanzi and/or ATS
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
+**TBD**
 
 Run Amanzi unittests
 ^^^^^^^^^^^^^^^^^^^^
 
-This assumes Amanzi has been installed, and you want to run unittests:
-
-    . bin/run_amanzi_unittests.sh master
-
+**TBD**
 
 Run ATS regression tests
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-This assumes ATS has been installed, and you want to run regression tests:
-
-    . bin/run_ats_tests.sh master
-
+**TBD**

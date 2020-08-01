@@ -6,8 +6,9 @@ if [ -z "$ATS_BASE" ]; do
 done
     
 cd $ATS_BASE
-
 mkdir -P modulefiles scripts amanzi ats amanzi-tpls/Downloads testing
-git clone https://github.com/ecoon/ats_manager.git ats_manager
+echo "# ------ begin code written by ats_manager/setup_ats_manager.sh ------"
+echo "export ATS_BASE=${ATS_BASE}" >> ~/.bash_profile
 echo "export PYTHONPATH=${PYTHONPATH}:${ATS_BASE}/ats_manager" >> ~/.bash_profile
-
+echo "module use -a ${ATS_BASE}/modulefiles" >> ~/.bash_profile
+echo "# ------ end code written by ats_manager/setup_ats_manager.sh --------"
