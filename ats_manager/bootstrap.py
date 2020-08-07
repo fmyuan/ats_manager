@@ -16,6 +16,14 @@ def _set_arg(args, key, val):
         args[key] = 'disable'
         
 
+_compiler_tmp = "--with-c-compiler=`which {}` --with-cxx-compiler=`which {}` --with-fort-compiler=`which {}`"
+def vendor_compilers(cc, cxx, fort):
+    return _compiler_tmp.format(cc,cxx,fort)
+
+def mpi_compilers():
+    return _compiler_tmp.format('mpicc', 'mpicxx', 'mpifort')
+    
+        
 _bootstrap_amanzi_template = \
 """#!/bin/env bash
 module load {module_name}
@@ -42,8 +50,8 @@ echo "-----------------------------------------------------"
     --tpl-install-prefix=${{AMANZI_TPLS_DIR}} \
     --amanzi-build-dir=${{AMANZI_BUILD_DIR}} \
     --amanzi-install-prefix=${{AMANZI_DIR}} \
-    --tools-build-dir=${{ATS_BASE}}/tools/build-1 \
-    --tools-install-prefix=${{ATS_BASE}}/tools/install-1 \
+    --tools-build-dir=${{ATS_BASE}}/tools/build-{tools_mpi} \
+    --tools-install-prefix=${{ATS_BASE}}/tools/install-{tools_mpi} \
     --tools-download-dir=${{ATS_BASE}}/tools/Downloads \
     --tpl-download-dir=${{ATS_BASE}}/amanzi-tpls/Downloads {tpl_config_file} \
     --{structured}-structured \
@@ -57,15 +65,15 @@ echo "-----------------------------------------------------"
     --enable-silo \
     --enable-clm \
     --disable-ats_physics \
+    {compilers} \
     --with-mpi=${{MPI_DIR}} \
-    --tools-mpi=openmpi \
-    --with-c-compiler=`which mpicc` \
-    --with-cxx-compiler=`which mpicxx` \
-    --with-fort-compiler=`which mpifort`
+    --tools-mpi={tools_mpi}
 
 exit $?
 """ 
 def bootstrap_amanzi(module_name,
+                     compilers=None,
+                     tools_mpi=None,
                      enable_structured=False,
                      enable_geochemistry=True,
                      use_existing_tpls=False):
@@ -78,6 +86,23 @@ def bootstrap_amanzi(module_name,
         args['tpl_config_file'] = "    --tpl-config-file=${AMANZI_TPLS_DIR}/share/cmake/amanzi-tpl-config.cmake"
     else:
         args['tpl_config_file'] = ""
+
+    #    if tools_mpi is None:
+    args['compilers'] = mpi_compilers()
+    # else:
+    #     if compilers is None:
+    #         compilers = 'gnu'
+    #     if compilers == 'gnu':
+    #         args['compilers'] = vendor_compilers('gcc', 'g++', 'gfortran')
+    #     elif compilers == 'clang':
+    #         args['compilers'] = vendor_compilers('clang', 'clang++', 'gfortran')
+    #     else:
+    #         raise ValueError("Unknown compiler {}: valid are 'gnu' and 'clang'".format(compilers))
+
+    if tools_mpi is None:
+        args['tools_mpi'] = 'openmpi'
+    else:
+        args['tools_mpi'] = tools_mpi
 
     logging.info('Filling  bootstrap')
     logging.info(args)
@@ -113,8 +138,8 @@ echo "-----------------------------------------------------"
     --tpl-install-prefix=${{AMANZI_TPLS_DIR}} \
     --amanzi-build-dir=${{AMANZI_BUILD_DIR}} \
     --amanzi-install-prefix=${{AMANZI_DIR}} \
-    --tools-build-dir=${{ATS_BASE}}/tools/build-1 \
-    --tools-install-prefix=${{ATS_BASE}}/tools/install-1 \
+    --tools-build-dir=${{ATS_BASE}}/tools/build-{tools_mpi} \
+    --tools-install-prefix=${{ATS_BASE}}/tools/install-{tools_mpi} \
     --tools-download-dir=${{ATS_BASE}}/tools/Downloads \
     --tpl-download-dir=${{ATS_BASE}}/amanzi-tpls/Downloads {tpl_config_file} \
     --disable-structured \
@@ -129,16 +154,15 @@ echo "-----------------------------------------------------"
     --enable-silo \
     --enable-clm \
     --ats_dev \
+    {compilers} \
     --with-mpi=${{MPI_DIR}} \
-    --tools-mpi=openmpi \
-    --with-c-compiler=`which mpicc` \
-    --with-cxx-compiler=`which mpicxx` \
-    --with-fort-compiler=`which mpifort`
+    --tools-mpi={tools_mpi}
 
 exit $?
 """ 
 def bootstrap_ats(module_name,
-                 enable_geochemistry=False,
+                  tools_mpi=None,
+                  enable_geochemistry=False,
                  use_existing_tpls=False):
     args = dict()
     args['module_name'] = module_name
@@ -148,7 +172,24 @@ def bootstrap_ats(module_name,
         args['tpl_config_file'] = "    --tpl-config-file=${AMANZI_TPLS_DIR}/share/cmake/amanzi-tpl-config.cmake"
     else:
         args['tpl_config_file'] = ""
-    
+
+    #if tools_mpi is None:
+    args['compilers'] = mpi_compilers()
+    # else:
+    #     if compilers is None:
+    #         compilers = 'gnu'
+    #     if compilers == 'gnu':
+    #         args['compilers'] = vendor_compilers('gcc', 'g++', 'gfortran')
+    #     elif compilers == 'clang':
+    #         args['compilers'] = vendor_compilers('clang', 'clang++', 'gfortran')
+    #     else:
+    #         raise ValueError("Unknown compiler {}: valid are 'gnu' and 'clang'".format(compilers))
+        
+    if tools_mpi is None:
+        args['tools_mpi'] = 'openmpi'
+    else:
+        args['tools_mpi'] = tools_mpi
+        
     logging.info('Filling bootstrap command:')
     logging.info(args)
     cmd = _bootstrap_ats_template.format(**args)

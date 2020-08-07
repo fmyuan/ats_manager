@@ -14,14 +14,15 @@ def filename(amanzi_name, ats_name, build_type, prefix=None):
     if ats_name is None:
         if prefix is None:
             prefix = 'amanzi'
-        return '{}/{}/{}'.format(prefix,amanzi_name,build_type)
+        return '{}/{}/{}'.format(prefix,amanzi_name.replace('/', '-'),build_type)
     else:
         if prefix is None:
             prefix = 'ats'
         if ats_name == amanzi_name:
-            return '{}/{}/{}'.format(prefix,ats_name,build_type)
+            return '{}/{}/{}'.format(prefix,ats_name.replace('/', '-'),build_type)
         else:
-            return '{}/{}-{}/{}'.format(prefix,amanzi_name,ats_name,build_type)
+            return '{}/{}-{}/{}'.format(prefix,amanzi_name.replace('/', '-'),
+                                        ats_name.replace('/', '-'),build_type)
 
         
 def split_filename(name):
@@ -53,7 +54,7 @@ def tpls_name(name):
 # paths to useful places
 def amanzi_src_dir(name):
     name_trip = name.split('/')
-    return os.path.join(os.environ['ATS_BASE'], name_trip[0], 'repos', name_trip[1], name_trip[2])
+    return os.path.join(os.environ['ATS_BASE'], name_trip[0], 'repos', name_trip[1])
 
 def amanzi_install_dir(name):
     name_trip = name.split('/')
@@ -82,7 +83,7 @@ def tpls_install_dir(name):
 def modulefile_path(name):
     return os.path.join(os.environ['ATS_BASE'], 'modulefiles', name)
 
-def tools_mpi_dir():
-    return os.path.join(os.environ['ATS_BASE'], 'tools')
+def tools_mpi_dir(vendor):
+    return os.path.join(os.environ['ATS_BASE'], 'tools', 'install-{}'.format(vendor))
 
 

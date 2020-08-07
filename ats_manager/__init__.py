@@ -16,10 +16,11 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
                 build_type='debug',
                 tpls_build_type='relwithdebinfo',
                 trilinos_build_type='debug',
-                tools_mpi=False,
+                tools_mpi=None,
                 run_amanzi_tests=True,
                 run_ats_tests=True,
                 skip_clone=False,
+                clobber=False,
                 **kwargs):
     """Create a new ATS installation.
 
@@ -47,14 +48,17 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
       One of 'debug', 'opt', or 'relwithdebinfo'.  The build type of
       the run.  Default to 'debug', 'relwithdebinfo', and 'debug'
       respectively.
-    tools_mpi : bool, optional
-      If True, use the MPI installed by SuperBuild.  If False
-      (default), use the MPI at os.environ['MPI_DIR'].
+    tools_mpi : str, optional
+      If supplied, use an MPI installed by SuperBuild (one of openmpi,
+      mpich).  If None (default), use the MPI at os.environ['MPI_DIR'].
     run_amanzi_tests, run_ats_tests : bool, optional
       If True (default), run Amanzi unittests and ATS regression
       tests, respectively.
     skip_clone : bool, optional
       If True, use the existing repo.
+    clobber : bool, optional
+      If True, clobber existing repo.  Note the default behavior errors
+      for any existing repos.
 
     Additional Parameters
     ---------------------
@@ -134,8 +138,8 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
     logging.info('Fully resolved TPLs: {}'.format(tpls_name))
     logging.info('=============================================================================')
 
-    if tools_mpi:
-        mpi_dir = names.tools_mpi_dir()
+    if tools_mpi is not None:
+        mpi_dir = names.tools_mpi_dir(tools_mpi)
     else:
         mpi_dir = os.environ['MPI_DIR']
         
@@ -156,9 +160,7 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
         assert(len(ats_base) > 1)
         assert(template_params['amanzi_src_dir'].startswith(ats_base))
         assert(len(template_params['amanzi_src_dir']) > len(ats_base)+10)
-        if os.path.isdir(template_params['amanzi_src_dir']):
-            shutil.rmtree(template_params['amanzi_src_dir'])
-        amanzi_repo = repo.clone_amanzi_ats(template_params['amanzi_src_dir'], amanzi_branch, ats_branch)
+        amanzi_repo = repo.clone_amanzi_ats(template_params['amanzi_src_dir'], amanzi_branch, ats_branch, clobber=clobber)
     
     if new_amanzi_branch != amanzi_branch:
         amanzi_repo.git.checkout('-b', new_amanzi_branch)
@@ -181,7 +183,7 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
         reg_test_repo.git.checkout('-b', new_ats_branch)
         
     # bootstrap, make, install
-    rc = bootstrap.bootstrap_ats(name, use_existing_tpls=use_existing_tpls, **kwargs)
+    rc = bootstrap.bootstrap_ats(name, use_existing_tpls=use_existing_tpls, tools_mpi=tools_mpi, **kwargs)
     if rc is not 0:
         return -1
 
@@ -210,9 +212,10 @@ def install_amanzi(amanzi_name, tpls_name=None,
                    build_type='debug',
                    tpls_build_type='relwithdebinfo',
                    trilinos_build_type='debug',
-                   tools_mpi=False,
+                   tools_mpi=None,
                    run_amanzi_tests=True,
                    skip_clone=False,
+                   clobber=False,
                    **kwargs):
     """Create a new Amanzi installation.
 
@@ -238,13 +241,16 @@ def install_amanzi(amanzi_name, tpls_name=None,
       One of 'debug', 'opt', or 'relwithdebinfo'.  The build type of
       the run.  Default to 'debug', 'relwithdebinfo', and 'debug'
       respectively.
-    tools_mpi : bool, optional
-      If True, use the MPI installed by SuperBuild.  If False
-      (default), use the MPI at os.environ['MPI_DIR'].
+    tools_mpi : str, optional
+      If supplied, use an MPI installed by SuperBuild (one of openmpi,
+      mpich).  If None (default), use the MPI at os.environ['MPI_DIR'].
     run_amanzi_tests : bool, optional
       If True (default), run Amanzi unittests.
     skip_clone : bool, optional
       If True, use the existing repo.
+    clobber : bool, optional
+      If True, clobber existing repo.  Note the default behavior errors
+      for any existing repos.
 
     Additional Parameters
     ---------------------
@@ -288,7 +294,7 @@ def install_amanzi(amanzi_name, tpls_name=None,
 
     if tpls_name is None:
         name_split = name.split('/')
-        tpls_name = '/'.join('amanzi-tpls',name_split[1],tpls_build_type)
+        tpls_name = '/'.join(['amanzi-tpls',name_split[1],tpls_build_type])
         use_existing_tpls = False
     else:
         tpls_name = names.filename(tpls_name, None, tpls_build_type, prefix='amanzi-tpls')
@@ -306,8 +312,8 @@ def install_amanzi(amanzi_name, tpls_name=None,
     logging.info('------------------')
 
         
-    if tools_mpi:
-        mpi_dir = names.tools_mpi_dir()
+    if tools_mpi is not None:
+        mpi_dir = names.tools_mpi_dir(tools_mpi)
     else:
         mpi_dir = os.environ['MPI_DIR']
         
@@ -327,14 +333,14 @@ def install_amanzi(amanzi_name, tpls_name=None,
         assert(len(ats_base) > 1)
         assert(template_params['amanzi_src_dir'].startswith(ats_base))
         assert(len(template_params['amanzi_src_dir']) > len(ats_base)+10)
-        shutil.rmtree(template_params['amanzi_src_dir'])
-        amanzi_repo = repo.clone_amanzi_ats(template_params['amanzi_src_dir'], amanzi_branch)
+        amanzi_repo = repo.clone_amanzi(template_params['amanzi_src_dir'], amanzi_branch, clobber=clobber)
     
     if new_amanzi_branch != amanzi_branch:
         amanzi_repo.git.checkout('-b', new_amanzi_branch)
         
     # bootstrap, make, install
-    rc = bootstrap.bootstrap_amanzi(name, use_existing_tpls=use_existing_tpls, **kwargs)
+    rc = bootstrap.bootstrap_amanzi(name, use_existing_tpls=use_existing_tpls,
+                                    tools_mpi=tools_mpi, **kwargs)
     if rc is not 0:
         return -1
 
@@ -406,121 +412,30 @@ def update_ats(module_name,
 
     return rc, module_name
 
-def installAmanziFromBranch(amanzi_name, tpls_name,
-                            amanzi_branch='master',
-                            use_existing_tpls=False,
-                            build_type='debug',
-                            tpls_build_type='relwithdebinfo',
-                            trilinos_build_type='debug',
-                            tools_mpi=False,
-                            run_amanzi_tests=True,
-                            **kwargs):
-    """Create a new Amanzi installation from existing branches.
 
-    Creates a modulefile, clones the repos, bootstraps the code, and
-    runs the tests.
-    
-    Parameters
-    ----------
-    amanzi_name, tpls_name : str
-      Arbitrary names to uniquely identify paths for Amanzi and
-      TPLs to be installed.  Note these must be unique relative to
-      previously created installations.
-    amanzi_branch : str, optional
-      Amanzi branches to clone.  Default is 'master'.
-    use_existing_tpls : bool, optional
-      If True, use the existing TPLs installation at tpls_name.  If
-      False, install a new set of TPLs at tpls_name.  Default is
-      False.
-    build_type, tpls_build_type, trilinos_build_type : str, optional
-      One of 'debug', 'opt', or 'relwithdebinfo'.  The build type of
-      the run.  Default to 'debug', 'relwithdebinfo', and 'debug'
-      respectively.
-    tools_mpi : bool, optional
-      If True, use the MPI installed by SuperBuild.  If False
-      (default), use the MPI at os.environ['MPI_DIR'].
-    run_amanzi_tests : bool, optional
-      If True (default), run Amanzi unittests after installation.
-
-    Additional Parameters
-    ---------------------
-    All additional parameters are passed to
-    ats_manager.bootstrap.bootstrap_amanzi().  Most commonly, these include:
-
-    enable_structured : bool, optional
-      If True, build Amanzi's structured capabilities.  Default is
-      False.
-    enable_geochemistry : bool, optional
-      If True, build Amanzi with chemistry and TPLs with
-      Alquimia, PFloTran, PETSc, and CrunchTope.  Default is True.
-    enable_kokkos_* : bool, optional
-      If True, build a Kokkos + Tpetra "Amanzi-ATS 2.0" suite of TPLs
-      and Amanzi, and turn on specific Kokkos backends.  Default
-      is False.  Most common are enable_kokkos_cuda and
-      enable_kokkos_openmp.
-    arch : str, optional
-      Specify bootstrap-recognized arch flag.  Currently only Summit
-      and NERSC are supported.  Default is None.
-
-    Returns
-    -------
-    int : return code: 
-        0 = success
-       -1 = failed build
-       >0 = successful build but failing tests
-    str : name of the generated modulefile
-
-    """
-    # generate the Amanzi modulefile
-    module_name = mm.module_filename(amanzi_name, None, build_type)
-    module_abs_path = mm.outputFilename(amanzi_name, None, build_type)
-    temp_file = mm.templateName(True)
-    temp_args = mm.amanzi_modulefile_template_args(amanzi_name, tpls_name, amanzi_branch,
-                                                build_type, tpls_build_type, trilinos_build_type,
-                                                tools_mpi)
-    mm.fill_template(temp_file, module_abs_path, temp_args)
-
-    # clone the repo
-    amanzi_repo = mr.amanziFromBranch(amanzi_name, build_type, amanzi_branch)
-
-    # bootstrap, make, install
-    rc = mb.bootstrapAmanzi(mfile, **kwargs)
-    if rc is not 0:
-        return -1
-
-    # amanzi make tests
-    if run_amanzi_tests:
-        amanzi_unittests_rc = mtr.amanziUnitTests(module_name)
-        if amanzi_unittests_rc is not 0:
-            rc += 1
-    else:
-        amanzi_unittests_rc = 0
-
-    return rc, module_name
-        
-
-
-def updateAndTestAmanzi(module_name,
-                        run_amanzi_tests=True):
-    mfile_split = os.path.split(module_name)
-    assert(mfile_split[0] == 'amanzi')
-    amanzi_name = mfile_split[1]
-    build_type = mfile_split[2]
+def update_amanzi(module_name,
+                  recompile=True,
+                  run_amanzi_tests=True):
+    assert(module_name.startswith('amanzi'))
+    amanzi_name, _, build_type = names.split_filename(module_name)
 
     # pull Amanzi
-    src_dir = mm.amanziSrcDir(amanzi_name, ats_name)
+    src_dir = names.amanzi_src_dir(module_name)
     logging.info('Pulling Amanzi at: {}'.format(src_dir))
     amanzi_repo = git.Repo(src_dir)
     amanzi_repo.git.pull()
 
+    rc = 0
     # recompile
-    rc = mb.bootstrapExistingFromFile(module_name, amanzi_name, None, build_type)
-    if (rc != 0):
-        return rc
+    if recompile:
+        rc = bootstrap.bootstrapExistingFromFile(module_name)
+        if (rc != 0):
+            return rc
 
     # make test
-    amanzi_unittests_rc = mtr.amanziUnitTests(module_name)
-    if amanzi_unittests_rc is not 0:
-        rc += 1
+    if run_amanzi_tests:
+        amanzi_unittests_rc = test_runner.amanziUnitTests(module_name)
+        if amanzi_unittests_rc is not 0:
+            rc += 1
 
-    return rc
+    return rc, module_name

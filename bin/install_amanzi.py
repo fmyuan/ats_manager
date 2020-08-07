@@ -1,6 +1,6 @@
 import sys
 import argparse
-import manager
+import ats_manager as manager
 
 def get_args():
     parser = argparse.ArgumentParser('Install Amanzi from a branch.')
@@ -21,6 +21,7 @@ if __name__ == "__main__":
                                         tools_mpi=args.tools_mpi,
                                         run_amanzi_tests=(not args.skip_amanzi_tests),
                                         skip_clone=args.skip_clone,
+                                        clobber=args.clobber,
                                         enable_structured=args.enable_structured,
                                         enable_geochemistry=args.enable_geochemistry)
     

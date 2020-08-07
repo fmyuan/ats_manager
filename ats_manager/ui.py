@@ -27,8 +27,8 @@ def get_install_args(parser, ats=False):
                         help='TPLs build type, one of "debug", "opt", or "relwithdebinfo"')
     parser.add_argument('--trilinos-build-type', type=str, default='debug',
                         help='Trilinos build type, one of "debug", "opt", or "relwithdebinfo"')
-    parser.add_argument('--tools-mpi', action='store_true',
-                        help='Use the Superbuild-installed MPI')
+    parser.add_argument('--tools-mpi', type=str, default=None,
+                        help='Use a SuperBuild installed MPI of this type (openmpi, mpich)')
     parser.add_argument('--skip-amanzi-tests', action='store_true',
                         help='Skip running Amanzi tests.')
     if ats:
@@ -36,6 +36,8 @@ def get_install_args(parser, ats=False):
                             help='Skip running ATS tests.')
     parser.add_argument('--skip-clone', action='store_true',
                         help='Skip cloning (and use existing repos)')
+    parser.add_argument('--clobber', action='store_true',
+                        help='Clobber any existing repos.')
     
     parser.add_argument('--enable-geochemistry', action='store_true',
                         help='Build with geochemistry physics package')

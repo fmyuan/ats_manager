@@ -1,6 +1,6 @@
 import sys
 import argparse
-import manager
+import ats_manager as manager
 
 def get_args():
     parser = argparse.ArgumentParser('Install ATS from a branch.')
@@ -22,6 +22,7 @@ if __name__ == "__main__":
                                      run_amanzi_tests=(not args.skip_amanzi_tests),
                                      run_ats_tests=(not args.skip_ats_tests),
                                      skip_clone=args.skip_clone,
+                                     clobber=args.clobber,
                                      enable_geochemistry=args.enable_geochemistry)
     
     sys.exit(rc)

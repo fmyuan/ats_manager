@@ -1,6 +1,6 @@
 import sys
 import argparse
-import manager
+import ats_manager as manager
 
 def get_args():
     parser = argparse.ArgumentParser('Update Amanzi.')
