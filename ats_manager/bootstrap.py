@@ -25,7 +25,9 @@ def mpi_compilers():
     
         
 _bootstrap_amanzi_template = \
-"""#!/bin/env bash
+"""#!/usr/bin/env bash
+
+{mpi}
 module load {module_name}
 cd ${{AMANZI_SRC_DIR}}
 
@@ -50,9 +52,6 @@ echo "-----------------------------------------------------"
     --tpl-install-prefix=${{AMANZI_TPLS_DIR}} \
     --amanzi-build-dir=${{AMANZI_BUILD_DIR}} \
     --amanzi-install-prefix=${{AMANZI_DIR}} \
-    --tools-build-dir=${{ATS_BASE}}/tools/build-{tools_mpi} \
-    --tools-install-prefix=${{ATS_BASE}}/tools/install-{tools_mpi} \
-    --tools-download-dir=${{ATS_BASE}}/tools/Downloads \
     --tpl-download-dir=${{ATS_BASE}}/amanzi-tpls/Downloads {tpl_config_file} \
     --{structured}-structured \
     --{geochemistry}-geochemistry \
@@ -66,19 +65,23 @@ echo "-----------------------------------------------------"
     --enable-clm \
     --disable-ats_physics \
     {compilers} \
-    --with-mpi=${{MPI_DIR}} \
-    --tools-mpi={tools_mpi}
+    --with-mpi=${{MPI_DIR}}
 
 exit $?
 """ 
 def bootstrap_amanzi(module_name,
                      compilers=None,
-                     tools_mpi=None,
+                     mpi=None,
                      enable_structured=False,
                      enable_geochemistry=True,
                      use_existing_tpls=False):
     args = dict()
     args['module_name'] = module_name
+    if mpi is not None:
+        args['mpi'] = 'module load {}'.format(mpi)
+    else:
+        args['mpi'] = ''
+
     _set_arg(args, 'structured', enable_structured)
     _set_arg(args, 'geochemistry', enable_geochemistry)
 
@@ -87,22 +90,8 @@ def bootstrap_amanzi(module_name,
     else:
         args['tpl_config_file'] = ""
 
-    #    if tools_mpi is None:
-    args['compilers'] = mpi_compilers()
-    # else:
-    #     if compilers is None:
-    #         compilers = 'gnu'
-    #     if compilers == 'gnu':
-    #         args['compilers'] = vendor_compilers('gcc', 'g++', 'gfortran')
-    #     elif compilers == 'clang':
-    #         args['compilers'] = vendor_compilers('clang', 'clang++', 'gfortran')
-    #     else:
-    #         raise ValueError("Unknown compiler {}: valid are 'gnu' and 'clang'".format(compilers))
 
-    if tools_mpi is None:
-        args['tools_mpi'] = 'openmpi'
-    else:
-        args['tools_mpi'] = tools_mpi
+    args['compilers'] = mpi_compilers()
 
     logging.info('Filling  bootstrap')
     logging.info(args)
@@ -113,7 +102,9 @@ def bootstrap_amanzi(module_name,
         
 
 _bootstrap_ats_template = \
-"""#!/bin/env bash
+"""#!/usr/bin/env bash
+
+{mpi}
 module load {module_name}
 cd ${{AMANZI_SRC_DIR}}
 
@@ -138,9 +129,6 @@ echo "-----------------------------------------------------"
     --tpl-install-prefix=${{AMANZI_TPLS_DIR}} \
     --amanzi-build-dir=${{AMANZI_BUILD_DIR}} \
     --amanzi-install-prefix=${{AMANZI_DIR}} \
-    --tools-build-dir=${{ATS_BASE}}/tools/build-{tools_mpi} \
-    --tools-install-prefix=${{ATS_BASE}}/tools/install-{tools_mpi} \
-    --tools-download-dir=${{ATS_BASE}}/tools/Downloads \
     --tpl-download-dir=${{ATS_BASE}}/amanzi-tpls/Downloads {tpl_config_file} \
     --disable-structured \
     --{geochemistry}-geochemistry \
@@ -155,17 +143,22 @@ echo "-----------------------------------------------------"
     --enable-clm \
     --ats_dev \
     {compilers} \
-    --with-mpi=${{MPI_DIR}} \
-    --tools-mpi={tools_mpi}
+    --with-mpi=${{MPI_DIR}}
 
 exit $?
 """ 
 def bootstrap_ats(module_name,
-                  tools_mpi=None,
+                  mpi=None,
                   enable_geochemistry=False,
-                 use_existing_tpls=False):
+                  use_existing_tpls=False):
     args = dict()
     args['module_name'] = module_name
+
+    if mpi is not None:
+        args['mpi'] = 'module load {}'.format(mpi)
+    else:
+        args['mpi'] = ''
+
     _set_arg(args, 'geochemistry', enable_geochemistry)
 
     if use_existing_tpls:
@@ -173,22 +166,7 @@ def bootstrap_ats(module_name,
     else:
         args['tpl_config_file'] = ""
 
-    #if tools_mpi is None:
     args['compilers'] = mpi_compilers()
-    # else:
-    #     if compilers is None:
-    #         compilers = 'gnu'
-    #     if compilers == 'gnu':
-    #         args['compilers'] = vendor_compilers('gcc', 'g++', 'gfortran')
-    #     elif compilers == 'clang':
-    #         args['compilers'] = vendor_compilers('clang', 'clang++', 'gfortran')
-    #     else:
-    #         raise ValueError("Unknown compiler {}: valid are 'gnu' and 'clang'".format(compilers))
-        
-    if tools_mpi is None:
-        args['tools_mpi'] = 'openmpi'
-    else:
-        args['tools_mpi'] = tools_mpi
         
     logging.info('Filling bootstrap command:')
     logging.info(args)

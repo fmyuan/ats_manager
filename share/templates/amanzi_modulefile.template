@@ -3,14 +3,14 @@
 ## modules modulefile
 ##
 proc ModulesHelp {{ }} {{
-    global mpi_bin
-
     puts stderr "\tAmanzi {amanzi} repository, {build_type} build"
     puts stderr ""
 }}
 
 module-whatis   "Amanzi {amanzi} {build_type} build"
 # #############################################################################
+
+{mpi}
 
 setenv AMANZI_TPLS_DIR {tpls_dir}
 setenv AMANZI_TPLS_BUILD_DIR {tpls_build_dir}

@@ -3,7 +3,7 @@ import logging
 import ats_manager.utils as utils
 
 _make_test_cmd = \
-"""#!/bin/env bash
+"""#!/usr/bin/env bash
 
 echo "running make test"
 module load {}
@@ -12,7 +12,7 @@ make test
 """
 
 _regression_test_cmd = \
-"""#!/bin/env bash
+"""#!/usr/bin/env bash
 
 module load {}
 echo "cd ${{ATS_TESTS_DIR}}"

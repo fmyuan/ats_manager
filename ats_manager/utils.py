@@ -19,7 +19,9 @@ def run_script(prefix, name):
     script = script_name(prefix, name)
     outfile = os.path.join(os.environ['ATS_BASE'], 'scripts', script)
     logging.info('Running {}'.format(script))
-    out = subprocess.run(outfile, capture_output=True)
+    logging.info('  file  {}'.format(outfile))
+    assert(os.path.isfile(outfile))
+    out = subprocess.run(outfile, capture_output=True, shell=True)
     logging.info(out.stdout.decode('utf-8'))
     logging.error(out.stderr.decode('utf-8'))
     return out.returncode

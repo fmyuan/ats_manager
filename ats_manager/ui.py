@@ -27,8 +27,8 @@ def get_install_args(parser, ats=False):
                         help='TPLs build type, one of "debug", "opt", or "relwithdebinfo"')
     parser.add_argument('--trilinos-build-type', type=str, default='debug',
                         help='Trilinos build type, one of "debug", "opt", or "relwithdebinfo"')
-    parser.add_argument('--tools-mpi', type=str, default=None,
-                        help='Use a SuperBuild installed MPI of this type (openmpi, mpich)')
+    parser.add_argument('--mpi', type=str, default=None,
+                        help='Name of the modulefile to load for MPI')
     parser.add_argument('--skip-amanzi-tests', action='store_true',
                         help='Skip running Amanzi tests.')
     if ats:

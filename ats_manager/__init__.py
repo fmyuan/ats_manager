@@ -16,7 +16,7 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
                 build_type='debug',
                 tpls_build_type='relwithdebinfo',
                 trilinos_build_type='debug',
-                tools_mpi=None,
+                mpi=None,
                 run_amanzi_tests=True,
                 run_ats_tests=True,
                 skip_clone=False,
@@ -48,9 +48,9 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
       One of 'debug', 'opt', or 'relwithdebinfo'.  The build type of
       the run.  Default to 'debug', 'relwithdebinfo', and 'debug'
       respectively.
-    tools_mpi : str, optional
-      If supplied, use an MPI installed by SuperBuild (one of openmpi,
-      mpich).  If None (default), use the MPI at os.environ['MPI_DIR'].
+    mpi : str, optional
+      Load a modulefile of this name to provide MPI.  If not provided, expects
+      MPI_DIR to be defined in env, and all mpi wrappers to be in the path.
     run_amanzi_tests, run_ats_tests : bool, optional
       If True (default), run Amanzi unittests and ATS regression
       tests, respectively.
@@ -124,7 +124,7 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
         logging.info('Using existing TPLs: {}'.format(tpls_name))
     else:
         logging.info('Building TPLs: {}'.format(tpls_name))
-        
+    logging.info('with MPI: {}'.format(mpi))        
     logging.info('---------------')
     logging.info('ATS branch: {}'.format(ats_branch))
     logging.info('Amanzi branch: {}'.format(amanzi_branch))
@@ -138,17 +138,12 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
     logging.info('Fully resolved TPLs: {}'.format(tpls_name))
     logging.info('=============================================================================')
 
-    if tools_mpi is not None:
-        mpi_dir = names.tools_mpi_dir(tools_mpi)
-    else:
-        mpi_dir = os.environ['MPI_DIR']
-        
     logging.info('Generating module file:')
     template_params = modulefile.create_modulefile(name, repo_name, tpls_name,
                                  build_type=build_type,
                                  tpls_build_type=tpls_build_type,
                                  trilinos_build_type=trilinos_build_type,
-                                 mpi_dir=mpi_dir)
+                                 mpi=mpi)
                                  
     logging.info('=============================================================================')
     # clone the repo
@@ -183,7 +178,7 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
         reg_test_repo.git.checkout('-b', new_ats_branch)
         
     # bootstrap, make, install
-    rc = bootstrap.bootstrap_ats(name, use_existing_tpls=use_existing_tpls, tools_mpi=tools_mpi, **kwargs)
+    rc = bootstrap.bootstrap_ats(name, use_existing_tpls=use_existing_tpls, mpi=mpi, **kwargs)
     if rc is not 0:
         return -1
 
@@ -212,7 +207,7 @@ def install_amanzi(amanzi_name, tpls_name=None,
                    build_type='debug',
                    tpls_build_type='relwithdebinfo',
                    trilinos_build_type='debug',
-                   tools_mpi=None,
+                   mpi=None,
                    run_amanzi_tests=True,
                    skip_clone=False,
                    clobber=False,
@@ -241,9 +236,9 @@ def install_amanzi(amanzi_name, tpls_name=None,
       One of 'debug', 'opt', or 'relwithdebinfo'.  The build type of
       the run.  Default to 'debug', 'relwithdebinfo', and 'debug'
       respectively.
-    tools_mpi : str, optional
-      If supplied, use an MPI installed by SuperBuild (one of openmpi,
-      mpich).  If None (default), use the MPI at os.environ['MPI_DIR'].
+    mpi : str, optional
+      Load a modulefile of this name to provide MPI.  If not provided, expects
+      MPI_DIR to be defined in env, and all mpi wrappers to be in the path.
     run_amanzi_tests : bool, optional
       If True (default), run Amanzi unittests.
     skip_clone : bool, optional
@@ -305,24 +300,19 @@ def install_amanzi(amanzi_name, tpls_name=None,
     logging.info('Amanzi name: {}'.format(amanzi_name))
     logging.info('Amanzi branch: {}'.format(amanzi_branch))
     logging.info('Amanzi new branch: {}'.format(new_amanzi_branch))
+    logging.info('MPI: {}'.format(mpi))
     logging.info('------------------')
     logging.info('Fully resolved name: {}'.format(name))
     logging.info('Fully resolved repo: {}'.format(repo_name))
     logging.info('Fully resolved TPLs: {}'.format(tpls_name))
     logging.info('------------------')
 
-        
-    if tools_mpi is not None:
-        mpi_dir = names.tools_mpi_dir(tools_mpi)
-    else:
-        mpi_dir = os.environ['MPI_DIR']
-        
     logging.info('Generating module file:')
     template_params = modulefile.create_modulefile(name, repo_name, tpls_name,
-                                 build_type=build_type,
-                                 tpls_build_type=tpls_build_type,
-                                 trilinos_build_type=trilinos_build_type,
-                                 mpi_dir=mpi_dir)
+                                                   build_type=build_type,
+                                                   tpls_build_type=tpls_build_type,
+                                                   trilinos_build_type=trilinos_build_type,
+                                                   mpi=mpi)
                                  
     # clone the repo
     if skip_clone:
@@ -340,7 +330,7 @@ def install_amanzi(amanzi_name, tpls_name=None,
         
     # bootstrap, make, install
     rc = bootstrap.bootstrap_amanzi(name, use_existing_tpls=use_existing_tpls,
-                                    tools_mpi=tools_mpi, **kwargs)
+                                    mpi=mpi, **kwargs)
     if rc is not 0:
         return -1
 

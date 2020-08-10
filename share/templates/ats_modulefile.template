@@ -12,6 +12,8 @@ proc ModulesHelp {{ }} {{
 module-whatis   "ATS {ats} {build_type} build"
 # #############################################################################
 
+{mpi}
+
 setenv AMANZI_TPLS_DIR {tpls_dir}
 setenv AMANZI_TPLS_BUILD_DIR {tpls_build_dir}
 setenv AMANZI_TPLS_CONFIG {tpls_dir}/share/cmake/amanzi-tpl-config.cmake

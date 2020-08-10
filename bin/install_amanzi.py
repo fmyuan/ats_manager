@@ -18,7 +18,7 @@ if __name__ == "__main__":
                                         build_type=args.build_type,
                                         tpls_build_type=args.tpls_build_type,
                                         trilinos_build_type=args.trilinos_build_type,
-                                        tools_mpi=args.tools_mpi,
+                                        mpi=args.mpi,
                                         run_amanzi_tests=(not args.skip_amanzi_tests),
                                         skip_clone=args.skip_clone,
                                         clobber=args.clobber,

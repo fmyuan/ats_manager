@@ -20,7 +20,7 @@ def fill_template(file_in, file_out, substitutions):
     return
 
 
-def amanzi_modulefile_args(name, repo_name, tpls_name, **kwargs):
+def amanzi_modulefile_args(name, repo_name, tpls_name, mpi, **kwargs):
     temp_pars = dict()
     temp_pars.update(**kwargs)
     temp_pars['amanzi'] = name
@@ -29,10 +29,14 @@ def amanzi_modulefile_args(name, repo_name, tpls_name, **kwargs):
     temp_pars['amanzi_dir'] = names.amanzi_install_dir(name)
     temp_pars['amanzi_build_dir'] = names.amanzi_build_dir(name)
     temp_pars['amanzi_src_dir'] = names.amanzi_src_dir(repo_name)
+    if mpi is None:
+        temp_pars['mpi'] = ''
+    else:
+        temp_pars['mpi'] = 'module load {}'.format(mpi)
     return temp_pars
                            
-def ats_modulefile_args(name, repo_name, tpls_name, **kwargs):
-    temp_pars = amanzi_modulefile_args(name, repo_name, tpls_name, **kwargs)
+def ats_modulefile_args(name, repo_name, tpls_name, mpi, **kwargs):
+    temp_pars = amanzi_modulefile_args(name, repo_name, tpls_name, mpi, **kwargs)
     temp_pars['ats'] = name
     temp_pars['ats_src_dir'] = names.ats_src_dir(repo_name)
     temp_pars['ats_regression_tests_dir'] = names.ats_regression_tests_dir(name)
