@@ -64,7 +64,7 @@ echo "-----------------------------------------------------"
     --enable-silo \
     --enable-clm \
     --disable-ats_physics \
-    {compilers} \
+    {compilers} {flags} \
     --with-mpi=${{MPI_DIR}}
 
 exit $?
@@ -74,7 +74,8 @@ def bootstrap_amanzi(module_name,
                      mpi=None,
                      enable_structured=False,
                      enable_geochemistry=True,
-                     use_existing_tpls=False):
+                     use_existing_tpls=False,
+                     bootstrap_options=None):
     args = dict()
     args['module_name'] = module_name
     if mpi is not None:
@@ -92,6 +93,10 @@ def bootstrap_amanzi(module_name,
 
 
     args['compilers'] = mpi_compilers()
+    if bootstrap_options is None:
+        args['flags'] = ''
+    else:
+        args['flags'] = bootstrap_options
 
     logging.info('Filling  bootstrap')
     logging.info(args)
@@ -142,7 +147,7 @@ echo "-----------------------------------------------------"
     --enable-silo \
     --enable-clm \
     --ats_dev \
-    {compilers} \
+    {compilers} {flags} \
     --with-mpi=${{MPI_DIR}}
 
 exit $?
@@ -150,7 +155,8 @@ exit $?
 def bootstrap_ats(module_name,
                   mpi=None,
                   enable_geochemistry=False,
-                  use_existing_tpls=False):
+                  use_existing_tpls=False,
+                  bootstrap_options=None):
     args = dict()
     args['module_name'] = module_name
 
@@ -167,6 +173,11 @@ def bootstrap_ats(module_name,
         args['tpl_config_file'] = ""
 
     args['compilers'] = mpi_compilers()
+    if bootstrap_options is None:
+        args['flags'] = ''
+    else:
+        args['flags'] = bootstrap_options
+
         
     logging.info('Filling bootstrap command:')
     logging.info(args)

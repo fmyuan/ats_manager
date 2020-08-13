@@ -10,15 +10,16 @@ import ats_manager.test_runner as test_runner
 
 from ats_manager.ui import *
 
-def install_ats(amanzi_name, ats_name, tpls_name=None,
+def install_ats(amanzi_name, ats_name,
                 amanzi_branch=None, ats_branch=None,
                 new_amanzi_branch=None, new_ats_branch=None,
                 build_type='debug',
                 tpls_build_type='relwithdebinfo',
                 trilinos_build_type='debug',
                 mpi=None,
-                run_amanzi_tests=True,
-                run_ats_tests=True,
+                tpls=None,
+                skip_amanzi_tests=False,
+                skip_ats_tests=False,
                 skip_clone=False,
                 clobber=False,
                 **kwargs):
@@ -26,56 +27,8 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
 
     Creates a modulefile, clones the repos, bootstraps the code, and
     runs the tests.
-    
-    Parameters
-    ----------
-    amanzi_name, ats_name : str
-      Arbitrary names to uniquely identify paths for Amanzi and ATS to
-      be installed.  Note these must be unique relative to previously
-      created installations.
-    tpls_name : str, optional
-      If provided, use an existing tpl installation from an Amanzi
-      previously installed where this value was given as 'amanzi_name'
-    amanzi_branch, ats_branch : str, optional
-      Amanzi and ATS branches to clone.  If None, set to the same as
-      amanzi_name and ats_name, respectively (default behavior).  If
-      ats_branch is 'default', uses the submodule info from the Amanzi
-      branch.
-    new_amanzi_branch, new_ats_branch : str, optional
-      Create a new Amanzi or ATS branch if provided, starting from
-      amanzi_branch and ats_branch, respectively.
-    build_type, tpls_build_type, trilinos_build_type : str, optional
-      One of 'debug', 'opt', or 'relwithdebinfo'.  The build type of
-      the run.  Default to 'debug', 'relwithdebinfo', and 'debug'
-      respectively.
-    mpi : str, optional
-      Load a modulefile of this name to provide MPI.  If not provided, expects
-      MPI_DIR to be defined in env, and all mpi wrappers to be in the path.
-    run_amanzi_tests, run_ats_tests : bool, optional
-      If True (default), run Amanzi unittests and ATS regression
-      tests, respectively.
-    skip_clone : bool, optional
-      If True, use the existing repo.
-    clobber : bool, optional
-      If True, clobber existing repo.  Note the default behavior errors
-      for any existing repos.
 
-    Additional Parameters
-    ---------------------
-    All additional parameters are passed to
-    ats_manager.bootstrap.bootstrap_ats().  Most commonly, these include:
-
-    enable_geochemistry : bool, optional
-      If True, build Amanzi and ATS with chemistry and TPLs with
-      Alquimia, PFloTran, PETSc, and CrunchTope.  Default is False.
-    enable_kokkos_* : bool, optional
-      If True, build a Kokkos + Tpetra "Amanzi-ATS 2.0" suite of TPLs,
-      Amanzi, and ATS, and turn on specific Kokkos backends.  Default
-      is False.  Most common are enable_kokkos_cuda and
-      enable_kokkos_openmp.
-    arch : str, optional
-      Specify bootstrap-recognized arch flag.  Currently only Summit
-      and NERSC are supported.  Default is None.
+    To see arguments, run: `python bin/install_ats.py -h`
 
     Returns
     -------
@@ -86,52 +39,31 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
     str : name of the generated modulefile
 
     """
-    assert(build_type in names.valid_build_types)
-    assert(trilinos_build_type in names.valid_build_types)
-    assert(tpls_build_type in names.valid_build_types)
-
-    if amanzi_branch is None:
-        amanzi_branch = amanzi_name
-    if new_amanzi_branch is None:
-        new_amanzi_branch = amanzi_branch
-    
-    if ats_name is None:
-        ats_name = "default"
-        assert(ats_branch is None)
-        assert(new_ats_branch is None)
-    else:
-        if ats_branch is None:
-            ats_branch = ats_name
-        if new_ats_branch is None:
-            new_ats_branch = ats_branch
-
-    name = names.filename(amanzi_name, ats_name, build_type)
-    repo_name = names.filename(new_amanzi_branch, new_ats_branch, build_type)
-
-    if tpls_name is None:
-        name_split = name.split('/')
-        tpls_name = '/'.join('amanzi-tpls',name_split[1],tpls_build_type)
-        use_existing_tpls = False
-    else:
-        tpls_name = names.filename(tpls_name, None, tpls_build_type, prefix='amanzi-tpls')
-        use_existing_tpls = True
-
     logging.info('Installing ATS:')
     logging.info('=============================================================================')
     logging.info('ATS name: {}'.format(ats_name))
     logging.info('Amanzi name: {}'.format(amanzi_name))
+    logging.info('ATS branch: {}'.format(ats_branch))
+    logging.info('Amanzi branch: {}'.format(amanzi_branch))
+    logging.info('ATS new branch: {}'.format(new_ats_branch))
+    logging.info('Amanzi new branch: {}'.format(new_amanzi_branch))
+
+    name = names.filename(amanzi_name, ats_name, build_type, mpi)
+    repo_name = names.filename(new_amanzi_branch, new_ats_branch, build_type, mpi)
+
+    if tpls is None:
+        name_split = name.split('/')
+        tpls_name = names.filename(amanzi_name, None, tpls_build_type, mpi, prefix='amanzi-tpls')
+        use_existing_tpls = False
+    else:
+        tpls_name = names.filename(tpls, None, tpls_build_type, mpi, prefix='amanzi-tpls')
+        use_existing_tpls = True
+
     if use_existing_tpls:
         logging.info('Using existing TPLs: {}'.format(tpls_name))
     else:
         logging.info('Building TPLs: {}'.format(tpls_name))
     logging.info('with MPI: {}'.format(mpi))        
-    logging.info('---------------')
-    logging.info('ATS branch: {}'.format(ats_branch))
-    logging.info('Amanzi branch: {}'.format(amanzi_branch))
-    if new_ats_branch != ats_branch:
-        logging.info('ATS new branch: {}'.format(new_ats_branch))
-    if new_amanzi_branch != amanzi_branch:
-        logging.info('Amanzi new branch: {}'.format(new_amanzi_branch))
     logging.info('---------------')
     logging.info('Fully resolved name: {}'.format(name))
     logging.info('Fully resolved repo: {}'.format(repo_name))
@@ -147,6 +79,7 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
                                  
     logging.info('=============================================================================')
     # clone the repo
+    logging.info('Setting up repo:  clone = {}, clobber = {}'.format(skip_clone, clobber))
     if skip_clone:
         amanzi_repo = git.Repo(template_params['amanzi_src_dir'])
     else:
@@ -176,39 +109,42 @@ def install_ats(amanzi_name, ats_name, tpls_name=None,
         
     if new_ats_branch != current_reg_branch:
         reg_test_repo.git.checkout('-b', new_ats_branch)
-        
+
+    logging.info('=============================================================================')
+    logging.info('Calling bootstrap:')
     # bootstrap, make, install
     rc = bootstrap.bootstrap_ats(name, use_existing_tpls=use_existing_tpls, mpi=mpi, **kwargs)
-    if rc is not 0:
-        return -1
+    if rc != 0:
+        return -1, name
 
     # amanzi make tests
-    if run_amanzi_tests:
-        amanzi_unittests_rc = test_runner.amanziUnitTests(name)
-        if amanzi_unittests_rc is not 0:
-            rc += 1
-    else:
+    if skip_amanzi_tests:
         amanzi_unittests_rc = 0
+    else:
+        amanzi_unittests_rc = test_runner.amanziUnitTests(name)
+        if amanzi_unittests_rc != 0:
+            rc += 1
 
     # ats regression tests
-    if run_ats_tests:
-        ats_regtests_rc = test_runner.atsRegressionTests(name)
-        if ats_regtests_rc is not 0:
-            rc += 1
-    else:
+    if skip_ats_tests:
         ats_regtests_rc = 0
+    else:
+        ats_regtests_rc = test_runner.atsRegressionTests(name)
+        if ats_regtests_rc != 0:
+            rc += 1
 
     return rc, name
 
 
-def install_amanzi(amanzi_name, tpls_name=None,
+def install_amanzi(amanzi_name,
                    amanzi_branch=None,
                    new_amanzi_branch=None,
                    build_type='debug',
                    tpls_build_type='relwithdebinfo',
                    trilinos_build_type='debug',
                    mpi=None,
-                   run_amanzi_tests=True,
+                   tpls=None,
+                   skip_amanzi_tests=False,
                    skip_clone=False,
                    clobber=False,
                    **kwargs):
@@ -216,55 +152,8 @@ def install_amanzi(amanzi_name, tpls_name=None,
 
     Creates a modulefile, clones the repos, bootstraps the code, and
     runs the tests.
-    
-    Parameters
-    ----------
-    amanzi_name : str
-      Arbitrary name to uniquely identify paths for Amanzi.  Note
-      these must be unique relative to previously created
-      installations.
-    tpls_name : str, optional
-      If provided, use an existing tpl installation from an Amanzi
-      previously installed where this value was given as 'amanzi_name'
-    amanzi_branch : str, optional
-      Amanzi branch to clone.  If None, set to the same as amanzi_name
-      (default behavior).
-    new_amanzi_branch : str, optional
-      Create a new Amanzi branch if provided, starting from
-      amanzi_branch.
-    build_type, tpls_build_type, trilinos_build_type : str, optional
-      One of 'debug', 'opt', or 'relwithdebinfo'.  The build type of
-      the run.  Default to 'debug', 'relwithdebinfo', and 'debug'
-      respectively.
-    mpi : str, optional
-      Load a modulefile of this name to provide MPI.  If not provided, expects
-      MPI_DIR to be defined in env, and all mpi wrappers to be in the path.
-    run_amanzi_tests : bool, optional
-      If True (default), run Amanzi unittests.
-    skip_clone : bool, optional
-      If True, use the existing repo.
-    clobber : bool, optional
-      If True, clobber existing repo.  Note the default behavior errors
-      for any existing repos.
 
-    Additional Parameters
-    ---------------------
-    All additional parameters are passed to
-    ats_manager.bootstrap.bootstrap_ats().  Most commonly, these include:
-
-    enable_structured : bool, optional
-      If True, build Amanzi's structured capability too.
-    enable_geochemistry : bool, optional
-      If True, build Amanzi and ATS with chemistry and TPLs with
-      Alquimia, PFloTran, PETSc, and CrunchTope.  Default is False.
-    enable_kokkos_* : bool, optional
-      If True, build a Kokkos + Tpetra "Amanzi-ATS 2.0" suite of TPLs,
-      Amanzi, and ATS, and turn on specific Kokkos backends.  Default
-      is False.  Most common are enable_kokkos_cuda and
-      enable_kokkos_openmp.
-    arch : str, optional
-      Specify bootstrap-recognized arch flag.  Currently only Summit
-      and NERSC are supported.  Default is None.
+    To see arguments, run: `python bin/install_amanzi.py -h`
 
     Returns
     -------
@@ -275,37 +164,33 @@ def install_amanzi(amanzi_name, tpls_name=None,
     str : name of the generated modulefile
 
     """
-    assert(build_type in names.valid_build_types)
-    assert(trilinos_build_type in names.valid_build_types)
-    assert(tpls_build_type in names.valid_build_types)
-    
-    if amanzi_branch is None:
-        amanzi_branch = amanzi_name
-    if new_amanzi_branch is None:
-        new_amanzi_branch = amanzi_branch
-
-    name = names.filename(amanzi_name, None, build_type)
-    repo_name = names.filename(new_amanzi_branch, None, build_type)
-
-    if tpls_name is None:
-        name_split = name.split('/')
-        tpls_name = '/'.join(['amanzi-tpls',name_split[1],tpls_build_type])
-        use_existing_tpls = False
-    else:
-        tpls_name = names.filename(tpls_name, None, tpls_build_type, prefix='amanzi-tpls')
-        use_existing_tpls = True
-
     logging.info('Installing Amanzi:')
-    logging.info('------------------')
+    logging.info('=============================================================================')
     logging.info('Amanzi name: {}'.format(amanzi_name))
     logging.info('Amanzi branch: {}'.format(amanzi_branch))
     logging.info('Amanzi new branch: {}'.format(new_amanzi_branch))
-    logging.info('MPI: {}'.format(mpi))
-    logging.info('------------------')
+
+    name = names.filename(amanzi_name, None, build_type, mpi)
+    repo_name = names.filename(new_amanzi_branch, None, build_type, mpi)
+
+    if tpls is None:
+        name_split = name.split('/')
+        tpls_name = names.filename(amanzi_name, None, tpls_build_type, mpi, prefix='amanzi-tpls')
+        use_existing_tpls = False
+    else:
+        tpls_name = names.filename(tpls, None, tpls_build_type, mpi, prefix='amanzi-tpls')
+        use_existing_tpls = True
+
+    if use_existing_tpls:
+        logging.info('Using existing TPLs: {}'.format(tpls_name))
+    else:
+        logging.info('Building TPLs: {}'.format(tpls_name))
+    logging.info('with MPI: {}'.format(mpi))        
+    logging.info('---------------')
     logging.info('Fully resolved name: {}'.format(name))
     logging.info('Fully resolved repo: {}'.format(repo_name))
     logging.info('Fully resolved TPLs: {}'.format(tpls_name))
-    logging.info('------------------')
+    logging.info('=============================================================================')
 
     logging.info('Generating module file:')
     template_params = modulefile.create_modulefile(name, repo_name, tpls_name,
@@ -314,7 +199,9 @@ def install_amanzi(amanzi_name, tpls_name=None,
                                                    trilinos_build_type=trilinos_build_type,
                                                    mpi=mpi)
                                  
+    logging.info('=============================================================================')
     # clone the repo
+    logging.info('Setting up repo:  clone = {}, clobber = {}'.format(skip_clone, clobber))
     if skip_clone:
         amanzi_repo = git.Repo(template_params['amanzi_src_dir'])
     else:
@@ -327,20 +214,22 @@ def install_amanzi(amanzi_name, tpls_name=None,
     
     if new_amanzi_branch != amanzi_branch:
         amanzi_repo.git.checkout('-b', new_amanzi_branch)
-        
+
+    logging.info('=============================================================================')
+    logging.info('Calling bootstrap:')
     # bootstrap, make, install
     rc = bootstrap.bootstrap_amanzi(name, use_existing_tpls=use_existing_tpls,
                                     mpi=mpi, **kwargs)
-    if rc is not 0:
-        return -1
+    if rc != 0:
+        return -1, name
 
     # amanzi make tests
-    if run_amanzi_tests:
-        amanzi_unittests_rc = test_runner.amanziUnitTests(name)
-        if amanzi_unittests_rc is not 0:
-            rc += 1
-    else:
+    if skip_amanzi_tests:
         amanzi_unittests_rc = 0
+    else:
+        amanzi_unittests_rc = test_runner.amanziUnitTests(name)
+        if amanzi_unittests_rc != 0:
+            rc += 1
 
     return rc, name
 
@@ -374,18 +263,18 @@ def update_ats(module_name,
     if recompile:
         rc = bootstrap.bootstrapExistingFromFile(module_name)
         if (rc != 0):
-            return rc
+            return rc, module_name
 
     # make test
     if run_amanzi_tests:
         amanzi_unittests_rc = test_runner.amanziUnitTests(module_name)
-        if amanzi_unittests_rc is not 0:
+        if amanzi_unittests_rc != 0:
             rc += 1
 
     # regression tests
     if run_ats_tests:
         ats_regtests_rc = test_runner.atsRegressionTests(module_name)
-        if ats_regtests_rc is not 0:
+        if ats_regtests_rc != 0:
             rc += 1
 
     if rc == 0 and ats_name != 'default':
@@ -420,12 +309,12 @@ def update_amanzi(module_name,
     if recompile:
         rc = bootstrap.bootstrapExistingFromFile(module_name)
         if (rc != 0):
-            return rc
+            return rc, module_name
 
     # make test
     if run_amanzi_tests:
         amanzi_unittests_rc = test_runner.amanziUnitTests(module_name)
-        if amanzi_unittests_rc is not 0:
+        if amanzi_unittests_rc != 0:
             rc += 1
 
     return rc, module_name
