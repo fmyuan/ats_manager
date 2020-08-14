@@ -47,7 +47,7 @@ echo "-----------------------------------------------------"
     --${{AMANZI_TRILINOS_BUILD_TYPE}}_trilinos \
     --${{AMANZI_TPLS_BUILD_TYPE}}_tpls \
     --parallel=8 \
-    --enable-shared \
+    {shared_libs} \
     --tpl-build-dir=${{AMANZI_TPLS_BUILD_DIR}} \
     --tpl-install-prefix=${{AMANZI_TPLS_DIR}} \
     --amanzi-build-dir=${{AMANZI_BUILD_DIR}} \
@@ -75,13 +75,19 @@ def bootstrap_amanzi(module_name,
                      enable_structured=False,
                      enable_geochemistry=True,
                      use_existing_tpls=False,
-                     bootstrap_options=None):
+                     bootstrap_options=None,
+                     build_static=False):
     args = dict()
     args['module_name'] = module_name
     if mpi is not None:
         args['mpi'] = 'module load {}'.format(mpi)
     else:
         args['mpi'] = ''
+
+    if build_static:
+        args['shared_libs'] = '--disable-shared'
+    else:
+        args['shared_libs'] = '--enable-shared'
 
     _set_arg(args, 'structured', enable_structured)
     _set_arg(args, 'geochemistry', enable_geochemistry)
@@ -129,7 +135,7 @@ echo "-----------------------------------------------------"
     --${{AMANZI_TRILINOS_BUILD_TYPE}}_trilinos \
     --${{AMANZI_TPLS_BUILD_TYPE}}_tpls \
     --parallel=8 \
-    --enable-shared \
+    {shared_libs} \
     --tpl-build-dir=${{AMANZI_TPLS_BUILD_DIR}} \
     --tpl-install-prefix=${{AMANZI_TPLS_DIR}} \
     --amanzi-build-dir=${{AMANZI_BUILD_DIR}} \
@@ -156,7 +162,8 @@ def bootstrap_ats(module_name,
                   mpi=None,
                   enable_geochemistry=False,
                   use_existing_tpls=False,
-                  bootstrap_options=None):
+                  bootstrap_options=None,
+                  build_static=False):
     args = dict()
     args['module_name'] = module_name
 
@@ -165,6 +172,11 @@ def bootstrap_ats(module_name,
     else:
         args['mpi'] = ''
 
+    if build_static:
+        args['shared_libs'] = '--disable-shared'
+    else:
+        args['shared_libs'] = '--enable-shared'
+        
     _set_arg(args, 'geochemistry', enable_geochemistry)
 
     if use_existing_tpls:

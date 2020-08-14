@@ -47,7 +47,9 @@ def get_install_args(parser, ats=False):
     if not ats:
         groups['tpls'].add_argument('--enable-structured', action='store_true',
                             help='Build with geochemistry physics package')
-    
+    groups['tpls'].add_argument('--build-static', action='store_true',
+                                help='Build with static libraries')
+        
     # build type
     valid_build_types = ['debug', 'opt', 'relwithdebinfo']
     groups['build_type'] = parser.add_argument_group('build_type', 'controls optimization flags')
