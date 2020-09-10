@@ -6,6 +6,8 @@ import ats_manager.names as names
 import ats_manager.utils as utils
 
 def bootstrapExistingFromFile(module_name):
+    logging.info('Bootstrap for: {}'.format(module_name))
+    logging.info('Bootstrap: {}'.format(utils.script_name('bootstrap', module_name)))
     return utils.run_script('bootstrap', module_name)
 
 
@@ -48,6 +50,7 @@ echo "-----------------------------------------------------"
     --${{AMANZI_TPLS_BUILD_TYPE}}_tpls \
     --parallel=8 \
     {shared_libs} \
+    --enable-reg_tests \
     --tpl-build-dir=${{AMANZI_TPLS_BUILD_DIR}} \
     --tpl-install-prefix=${{AMANZI_TPLS_DIR}} \
     --amanzi-build-dir=${{AMANZI_BUILD_DIR}} \

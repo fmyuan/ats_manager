@@ -9,25 +9,32 @@ valid_build_types = ['debug', 'opt', 'relwithdebinfo']
 ats_submodule = 'src/physics/ats'
 
 
-def filename(amanzi_name, ats_name, build_type, mpi, prefix=None):
+def filename(amanzi_name, ats_name, build_type, compilers, prefix=None):
     """Returns a unique filename for identifying installations."""
-    if mpi is None:
-        mpi_name = 'mpi-system'
-    else:
-        mpi_name = mpi.replace('/', '-')
+    if compilers is None:
+        compilers = ''
+
     if ats_name is None:
         if prefix is None:
             prefix = 'amanzi'
-        return '{}/{}/{}/{}'.format(prefix,amanzi_name.replace('/', '-'),build_type, mpi_name)
+        return '{}/{}/{}/{}'.format(prefix,
+                                    amanzi_name.replace('/', '-'),
+                                    build_type.replace('/','-'),
+                                    compilers.replace('/','-'))
     else:
         if prefix is None:
             prefix = 'ats'
         if ats_name == amanzi_name:
-            return '{}/{}/{}/{}'.format(prefix,ats_name.replace('/', '-'),build_type, mpi_name)
+            return '{}/{}/{}/{}'.format(prefix,
+                                        ats_name.replace('/', '-'),
+                                        build_type.replace('/','-'),
+                                        compilers.replace('/','-'))
         else:
-            return '{}/{}-{}/{}/{}'.format(prefix,amanzi_name.replace('/', '-'),
-                                           ats_name.replace('/', '-'),build_type, mpi_name)
-
+            return '{}/{}+{}/{}/{}'.format(prefix,
+                                           amanzi_name.replace('/', '-'),
+                                           ats_name.replace('/', '-'),
+                                           build_type.replace('/','-'),
+                                           compilers.replace('/','-'))
         
 def split_filename(name):
     """Splits a unique filename into its components."""
@@ -35,20 +42,20 @@ def split_filename(name):
     if split[0] == 'amanzi':
         return split[1],None,split[2], split[3]
     elif split[0] == 'ats':
-        names = split[1].split('-')
+        names = split[1].split('+')
         if len(names) == 1:
             return split[1], split[1], split[2], split[3]
         else:
             return names[0], names[1], split[2], split[3]
 
         
-def unique_string(amanzi_name, ats_name, build_type, mpi):
+def unique_string(amanzi_name, ats_name, build_type, compilers):
     """Creates a unique (non-filename) string to identify an installation."""
-    return filename(amanzi_name,ats_name,build_type,mpi).replace('/','-')
+    return filename(amanzi_name,ats_name,build_type,compilers).replace('/','-')
 
 def tpls_name(name):
     name_split = split_filename(name)
-    assert(len(name_split) is 4)
+    assert(len(name_split) == 4)
     if name_split[1] is None:
         inner_name = name_split[0]
     else:
@@ -74,7 +81,7 @@ def ats_src_dir(name):
 def ats_regression_tests_dir(name):
     name_trip = name.split('/')
     assert(name_trip[0] == 'ats')
-    return os.path.join(os.environ['ATS_BASE'], 'testing', 'ats-regression-tests', name_trip[1], name_trip[2], name_trip[3])
+    return os.path.join(os.environ['ATS_BASE'], 'testing', name_trip[1], name_trip[2], name_trip[3], 'ats-regression-tests')
 
 def tpls_build_dir(name):
     tpls_trip = name.split('/')

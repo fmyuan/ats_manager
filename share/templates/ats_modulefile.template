@@ -36,5 +36,6 @@ prepend-path    PATH            {amanzi_dir}/bin
 prepend-path    PYTHONPATH      {tpls_dir}/SEACAS/lib
 prepend-path    PYTHONPATH      {amanzi_src_dir}/tools/amanzi_xml
 prepend-path    PYTHONPATH      {ats_src_dir}/tools/utils
+prepend-path    PYTHONPATH      {ats_src_dir}/tools/ats_meshing/ats_meshing
 
 
