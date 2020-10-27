@@ -4,6 +4,7 @@ import ats_manager.utils as utils
 
 _make_test_cmd = \
 """#!/usr/bin/env bash
+source ${{MODULESHOME}}/init/profile
 
 echo "running make test"
 module load {}
@@ -13,6 +14,7 @@ make test
 
 _regression_test_cmd = \
 """#!/usr/bin/env bash
+source ${{MODULESHOME}}/init/profile
 
 module load {}
 echo "cd ${{ATS_TESTS_DIR}}"

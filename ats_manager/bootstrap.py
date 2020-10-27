@@ -28,6 +28,7 @@ def mpi_compilers():
         
 _bootstrap_amanzi_template = \
 """#!/usr/bin/env bash
+source ${{MODULESHOME}}/init/profile
 
 {mpi}
 module load {module_name}
@@ -117,6 +118,7 @@ def bootstrap_amanzi(module_name,
 
 _bootstrap_ats_template = \
 """#!/usr/bin/env bash
+source ${{MODULESHOME}}/init/profile
 
 {mpi}
 module load {module_name}

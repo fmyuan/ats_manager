@@ -29,7 +29,8 @@ def run_script(prefix, name):
         if output:
             print(output.decode('utf-8').strip())
 
-    logging.error(process.stderr.decode('utf-8'))
+    if process.stderr is not None:
+        logging.error(process.stderr.decode('utf-8'))
     return process.returncode
 
 
