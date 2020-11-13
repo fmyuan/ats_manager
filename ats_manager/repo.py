@@ -23,19 +23,21 @@ def clone_amanzi(path, branch='master'):
 def clone_amanzi_ats(path, branch='master', ats_branch=None):
     """Clones a new copy of an Amanzi branch that includes ATS."""
     repo = clone('Amanzi-ATS', names.amanzi_url, path, branch)
-    #repo = git.Repo(path)
+    logging.info('Cloning submodules (ATS).')
 
     ats_sub = repo.submodule(names.ats_submodule)
-    logging.info('Cloning submodules (ATS).')
-    ats_sub.update(init=True)
+    ats_sub.update(init=True, recursive=False)
+
     if ats_branch is not None:
         logging.info('Checking out ATS branch: {}'.format(ats_branch))
         ats_sub.module().git.checkout(ats_branch)
         ats_sub.module().git.pull()
-    return repo
 
-def clone_ats_regression_tests(path, branch='master'):
-    return clone('ATS regression tests', names.ats_regression_tests_url, path, branch)
+    # clone ats submodules
+    for sub in ats_sub.module().submodules:
+        logging.info('Checking out ATS submodule {}'.format(sub))
+        sub.update(init=True)
+    return repo
 
 def new_branch(repo, branch):
     repo.git.checkout('-b', branch)

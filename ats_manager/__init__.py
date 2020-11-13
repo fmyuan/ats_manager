@@ -93,22 +93,6 @@ def install_ats(amanzi_name, ats_name,
     if new_ats_branch != ats_branch:
         amanzi_repo.submodule(names.ats_submodule).module().git.checkout('-b', new_ats_branch)
 
-    # clone regression tests
-    if not skip_clone:
-        try:
-            reg_test_repo = repo.clone_ats_regression_tests(template_params['ats_regression_tests_dir'],
-                                                            ats_branch)
-        except git.GitCommandError:
-            # likely failed because branch doesn't exist -- clone master
-            # and check a new branch out
-            reg_test_repo = repo.clone_ats_regression_tests(template_params['ats_regression_tests_dir'])
-            current_reg_branch = 'master'
-        else:
-            current_reg_branch = ats_branch
-
-        if new_ats_branch != current_reg_branch:
-            reg_test_repo.git.checkout('-b', new_ats_branch)
-
     logging.info('=============================================================================')
     logging.info('Calling bootstrap:')
     # bootstrap, make, install
@@ -123,15 +107,6 @@ def install_ats(amanzi_name, ats_name,
         amanzi_unittests_rc = test_runner.amanziUnitTests(name)
         if amanzi_unittests_rc != 0:
             rc += 1
-
-    # ats regression tests
-    if skip_ats_tests:
-        ats_regtests_rc = 0
-    else:
-        ats_regtests_rc = test_runner.atsRegressionTests(name)
-        if ats_regtests_rc != 0:
-            rc += 1
-
     return rc, name
 
 
@@ -265,12 +240,6 @@ def update_ats(module_name,
     if run_amanzi_tests:
         amanzi_unittests_rc = test_runner.amanziUnitTests(module_name)
         if amanzi_unittests_rc != 0:
-            rc += 1
-
-    # regression tests
-    if run_ats_tests:
-        ats_regtests_rc = test_runner.atsRegressionTests(module_name)
-        if ats_regtests_rc != 0:
             rc += 1
 
     if rc == 0 and ats_name != 'default':

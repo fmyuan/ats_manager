@@ -51,7 +51,6 @@ echo "-----------------------------------------------------"
     --${{AMANZI_TPLS_BUILD_TYPE}}_tpls \
     --parallel=8 \
     {shared_libs} \
-    --enable-reg_tests \
     --tpl-build-dir=${{AMANZI_TPLS_BUILD_DIR}} \
     --tpl-install-prefix=${{AMANZI_TPLS_DIR}} \
     --amanzi-build-dir=${{AMANZI_BUILD_DIR}} \

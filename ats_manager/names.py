@@ -79,9 +79,8 @@ def ats_src_dir(name):
     return os.path.join(amanzi_src_dir(name), ats_submodule)
 
 def ats_regression_tests_dir(name):
-    name_trip = name.split('/')
-    assert(name_trip[0] == 'ats')
-    return os.path.join(os.environ['ATS_BASE'], 'testing', name_trip[1], name_trip[2], name_trip[3], 'ats-regression-tests')
+    src_dir = ats_src_dir(name)
+    return os.path.join(src_dir, 'testing', 'ats-regression-tests')
 
 def tpls_build_dir(name):
     tpls_trip = name.split('/')
