@@ -156,6 +156,7 @@ echo "-----------------------------------------------------"
     --enable-hypre \
     --enable-silo \
     --enable-clm \
+    --enable-reg_tests \
     --ats_dev \
     {compilers} {flags} \
     --with-mpi=${{MPI_DIR}}
