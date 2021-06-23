@@ -23,14 +23,13 @@ def vendor_compilers(cc, cxx, fort):
     return _compiler_tmp.format(cc,cxx,fort)
 
 def mpi_compilers():
-    return _compiler_tmp.format('mpicc', 'mpicxx', 'mpifort')
+    return _compiler_tmp.format('cc', 'CC', 'ftn')
     
         
 _bootstrap_amanzi_template = \
 """#!/usr/bin/env bash
-source ${{MODULESHOME}}/init/profile
+#source ${{MODULESHOME}}/init/profile
 
-{mpi}
 module load {module_name}
 cd ${{AMANZI_SRC_DIR}}
 
@@ -64,7 +63,7 @@ echo "-----------------------------------------------------"
     --{geochemistry}-crunchtope \
     --enable-amanzi_physics \
     --enable-hypre \
-    --enable-silo \
+    --disable-silo \
     --enable-clm \
     --disable-ats_physics \
     {compilers} {flags} \
@@ -74,18 +73,14 @@ exit $?
 """ 
 def bootstrap_amanzi(module_name,
                      compilers=None,
-                     mpi=None,
                      enable_structured=False,
                      enable_geochemistry=True,
                      use_existing_tpls=False,
                      bootstrap_options=None,
                      build_static=False):
+    
     args = dict()
     args['module_name'] = module_name
-    if mpi is not None:
-        args['mpi'] = 'module load {}'.format(mpi)
-    else:
-        args['mpi'] = ''
 
     if build_static:
         args['shared_libs'] = '--disable-shared'
@@ -117,12 +112,10 @@ def bootstrap_amanzi(module_name,
 
 _bootstrap_ats_template = \
 """#!/usr/bin/env bash
-source ${{MODULESHOME}}/init/profile
+#source ${{MODULESHOME}}/init/profile
 
-{mpi}
 module load {module_name}
 cd ${{AMANZI_SRC_DIR}}
-
 
 echo "Building Amanzi-ATS: {module_name}"
 echo "-----------------------------------------------------"
@@ -154,7 +147,7 @@ echo "-----------------------------------------------------"
     --disable-amanzi_physics \
     --enable-ats_physics \
     --enable-hypre \
-    --enable-silo \
+    --disable-silo \
     --enable-clm \
     --enable-reg_tests \
     --ats_dev \
@@ -164,18 +157,12 @@ echo "-----------------------------------------------------"
 exit $?
 """ 
 def bootstrap_ats(module_name,
-                  mpi=None,
                   enable_geochemistry=False,
                   use_existing_tpls=False,
                   bootstrap_options=None,
                   build_static=False):
     args = dict()
     args['module_name'] = module_name
-
-    if mpi is not None:
-        args['mpi'] = 'module load {}'.format(mpi)
-    else:
-        args['mpi'] = ''
 
     if build_static:
         args['shared_libs'] = '--disable-shared'

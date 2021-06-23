@@ -21,7 +21,11 @@ def get_install_args(parser, ats=False):
                         help='Skip cloning (and use existing repos)')
     skip_clobber.add_argument('--clobber', action='store_true',
                         help='Clobber any existing repos.')
-        
+    groups['control'].add_argument('--machine', default=None,
+                                   help='Machine name to include in modulefile name')
+    groups['control'].add_argument('--compiler-id', type=str, default=None,
+                                   help='Identifying string for the compiler/MPI to create a unique modulefile name')
+    
     # branches
     groups['branches'] = parser.add_argument_group('branches', 'current and new branch names')
     groups['branches'].add_argument('--amanzi-branch', type=str, default=None,
@@ -40,8 +44,8 @@ def get_install_args(parser, ats=False):
     groups['tpls'] = parser.add_argument_group('TPLs', 'third party library controls')
     groups['tpls'].add_argument('--tpls', default=None,
                         help='If supplied, use an existing TPLs installation at this name.')
-    groups['tpls'].add_argument('--mpi', type=str, default=None,
-                        help='Name of the modulefile to load for MPI')
+    groups['tpls'].add_argument('--modulefile', type=str, action='append',
+                                help='Name of a modulefile to load, can appear multiple times.')
     groups['tpls'].add_argument('--enable-geochemistry', action='store_true',
                         help='Build with geochemistry physics package')
     if not ats:

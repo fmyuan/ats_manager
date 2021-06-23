@@ -13,7 +13,8 @@ if __name__ == "__main__":
     import logging
     logging.basicConfig(level=logging.INFO)
     
-    args = get_args()
-    rc, module = manager.install_ats(**vars(args))
+    args = vars(get_args())
+    args['modulefiles'] = args.pop('modulefile')
+    rc, module = manager.install_ats(**args)
     sys.exit(rc)
     

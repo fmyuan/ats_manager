@@ -17,7 +17,9 @@ def install_ats(amanzi_name, ats_name,
                 build_type='debug',
                 tpls_build_type='relwithdebinfo',
                 trilinos_build_type='debug',
-                mpi=None,
+                machine=None,
+                compiler_id=None,
+                modulefiles=None,
                 tpls=None,
                 skip_amanzi_tests=False,
                 skip_ats_tests=False,
@@ -49,22 +51,32 @@ def install_ats(amanzi_name, ats_name,
     logging.info('ATS new branch: {}'.format(new_ats_branch))
     logging.info('Amanzi new branch: {}'.format(new_amanzi_branch))
 
-    name = names.filename(amanzi_name, ats_name, build_type, mpi)
-    repo_name = names.filename(new_amanzi_branch, new_ats_branch, build_type, mpi)
+    if modulefiles is None:
+        modulefiles = []
+    if compiler_id is None:
+        if len(modulefiles) == 0:
+            compiler_id = 'default'
+        else:
+            compiler_id = modulefiles[-1]
+    if machine is None:
+        machine = 'local'
+
+    name = names.filename(amanzi_name, ats_name, machine, compiler_id, build_type)
+    repo_name = names.filename(new_amanzi_branch, new_ats_branch, machine, compiler_id, build_type)
 
     if tpls is None:
         name_split = name.split('/')
-        tpls_name = names.filename(amanzi_name, None, tpls_build_type, mpi, prefix='amanzi-tpls')
+        tpls_name = names.filename(amanzi_name, None, machine, compiler_id, tpls_build_type, prefix='amanzi-tpls')
         use_existing_tpls = False
     else:
-        tpls_name = names.filename(tpls, None, tpls_build_type, mpi, prefix='amanzi-tpls')
+        tpls_name = names.filename(tpls, None, machine, compiler_id, tpls_build_type, prefix='amanzi-tpls')
         use_existing_tpls = True
 
     if use_existing_tpls:
         logging.info('Using existing TPLs: {}'.format(tpls_name))
     else:
         logging.info('Building TPLs: {}'.format(tpls_name))
-    logging.info('with MPI: {}'.format(mpi))        
+    logging.info('with compiler/MPI id: {}'.format(compiler_id))        
     logging.info('---------------')
     logging.info('Fully resolved name: {}'.format(name))
     logging.info('Fully resolved repo: {}'.format(repo_name))
@@ -76,7 +88,7 @@ def install_ats(amanzi_name, ats_name,
                                  build_type=build_type,
                                  tpls_build_type=tpls_build_type,
                                  trilinos_build_type=trilinos_build_type,
-                                 mpi=mpi)
+                                 modulefiles=modulefiles)
                                  
     logging.info('=============================================================================')
     # clone the repo
@@ -96,7 +108,7 @@ def install_ats(amanzi_name, ats_name,
     logging.info('=============================================================================')
     logging.info('Calling bootstrap:')
     # bootstrap, make, install
-    rc = bootstrap.bootstrap_ats(name, use_existing_tpls=use_existing_tpls, mpi=mpi, **kwargs)
+    rc = bootstrap.bootstrap_ats(name, use_existing_tpls=use_existing_tpls, **kwargs)
     if rc != 0:
         return -1, name
 
@@ -116,7 +128,9 @@ def install_amanzi(amanzi_name,
                    build_type='debug',
                    tpls_build_type='relwithdebinfo',
                    trilinos_build_type='debug',
-                   mpi=None,
+                   machine=None,
+                   compiler_id=None,
+                   modulefiles=None,
                    tpls=None,
                    skip_amanzi_tests=False,
                    skip_clone=False,
@@ -144,22 +158,32 @@ def install_amanzi(amanzi_name,
     logging.info('Amanzi branch: {}'.format(amanzi_branch))
     logging.info('Amanzi new branch: {}'.format(new_amanzi_branch))
 
-    name = names.filename(amanzi_name, None, build_type, mpi)
-    repo_name = names.filename(new_amanzi_branch, None, build_type, mpi)
+    if modulefiles is None:
+        modulefiles = []
+    if compiler_id is None:
+        if len(modulefiles) == 0:
+            compiler_id = 'default'
+        else:
+            compiler_id = modulefiles[-1]
+    if machine is None:
+        machine = 'local'
+    
+    name = names.filename(amanzi_name, None, machine, compiler_id, build_type)
+    repo_name = names.filename(new_amanzi_branch, None, machine, compiler_id, build_type)
 
     if tpls is None:
         name_split = name.split('/')
-        tpls_name = names.filename(amanzi_name, None, tpls_build_type, mpi, prefix='amanzi-tpls')
+        tpls_name = names.filename(amanzi_name, None, machine, compiler_id, tpls_build_type, prefix='amanzi-tpls')
         use_existing_tpls = False
     else:
-        tpls_name = names.filename(tpls, None, tpls_build_type, mpi, prefix='amanzi-tpls')
+        tpls_name = names.filename(tpls, None, machine, compiler_id, tpls_build_type, prefix='amanzi-tpls')
         use_existing_tpls = True
 
     if use_existing_tpls:
         logging.info('Using existing TPLs: {}'.format(tpls_name))
     else:
         logging.info('Building TPLs: {}'.format(tpls_name))
-    logging.info('with MPI: {}'.format(mpi))        
+    logging.info('with compiler/MPI id: {}'.format(compiler_id))        
     logging.info('---------------')
     logging.info('Fully resolved name: {}'.format(name))
     logging.info('Fully resolved repo: {}'.format(repo_name))
@@ -171,7 +195,7 @@ def install_amanzi(amanzi_name,
                                                    build_type=build_type,
                                                    tpls_build_type=tpls_build_type,
                                                    trilinos_build_type=trilinos_build_type,
-                                                   mpi=mpi)
+                                                   modulefiles=modulefiles)
                                  
     logging.info('=============================================================================')
     # clone the repo
@@ -189,8 +213,7 @@ def install_amanzi(amanzi_name,
     logging.info('=============================================================================')
     logging.info('Calling bootstrap:')
     # bootstrap, make, install
-    rc = bootstrap.bootstrap_amanzi(name, use_existing_tpls=use_existing_tpls,
-                                    mpi=mpi, **kwargs)
+    rc = bootstrap.bootstrap_amanzi(name, use_existing_tpls=use_existing_tpls, **kwargs)
     if rc != 0:
         return -1, name
 
