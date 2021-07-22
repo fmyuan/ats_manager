@@ -68,7 +68,8 @@ echo "-----------------------------------------------------"
     --enable-clm \
     --disable-ats_physics \
     {compilers} {flags} \
-    --with-mpi=${{MPI_DIR}}
+    --with-mpi=${{MPI_DIR}} \
+    --with-python=`which python`
 
 exit $?
 """ 
@@ -159,7 +160,8 @@ echo "-----------------------------------------------------"
     --enable-reg_tests \
     --ats_dev \
     {compilers} {flags} \
-    --with-mpi=${{MPI_DIR}}
+    --with-mpi=${{MPI_DIR}} \
+    --with-python=`which python`
 
 exit $?
 """ 
