@@ -10,7 +10,10 @@ proc ModulesHelp {{ }} {{
 module-whatis   "Amanzi {amanzi} {build_type} build"
 # #############################################################################
 
-{mpi}
+module purge
+{modulefiles}
+
+setenv MPI_DIR $env(MPICH_DIR)
 
 setenv AMANZI_TPLS_DIR {tpls_dir}
 setenv AMANZI_TPLS_BUILD_DIR {tpls_build_dir}

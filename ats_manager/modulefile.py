@@ -20,7 +20,7 @@ def fill_template(file_in, file_out, substitutions):
     return
 
 
-def amanzi_modulefile_args(name, repo_name, tpls_name, mpi, **kwargs):
+def amanzi_modulefile_args(name, repo_name, tpls_name, modulefiles, **kwargs):
     temp_pars = dict()
     temp_pars.update(**kwargs)
     temp_pars['amanzi'] = name
@@ -29,14 +29,11 @@ def amanzi_modulefile_args(name, repo_name, tpls_name, mpi, **kwargs):
     temp_pars['amanzi_dir'] = names.amanzi_install_dir(name)
     temp_pars['amanzi_build_dir'] = names.amanzi_build_dir(name)
     temp_pars['amanzi_src_dir'] = names.amanzi_src_dir(repo_name)
-    if mpi is None:
-        temp_pars['mpi'] = ''
-    else:
-        temp_pars['mpi'] = 'module load {}'.format(mpi)
+    temp_pars['modulefiles'] = '\n'.join(['module load {}'.format(mf) for mf in modulefiles])
     return temp_pars
                            
-def ats_modulefile_args(name, repo_name, tpls_name, mpi, **kwargs):
-    temp_pars = amanzi_modulefile_args(name, repo_name, tpls_name, mpi, **kwargs)
+def ats_modulefile_args(name, repo_name, tpls_name, modulefiles, **kwargs):
+    temp_pars = amanzi_modulefile_args(name, repo_name, tpls_name, modulefiles, **kwargs)
     temp_pars['ats'] = name
     temp_pars['ats_src_dir'] = names.ats_src_dir(repo_name)
     temp_pars['ats_regression_tests_dir'] = names.ats_regression_tests_dir(name)
@@ -48,7 +45,6 @@ def template_path(ats=False):
         return os.path.join(os.environ['ATS_BASE'],'ats_manager','share','templates','ats_modulefile.template')
     else:
         return os.path.join(os.environ['ATS_BASE'],'ats_manager','share','templates','amanzi_modulefile.template')
-
 
 def create_modulefile(name, repo_name, tpls_name, **kwargs):
     """Sets up the name of the modulefile to be created.  Note this also
