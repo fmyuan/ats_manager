@@ -1,5 +1,5 @@
 """Sets up and runs bootstrap"""
-import os,stat
+import os,sys,stat
 import subprocess
 import logging
 import ats_manager.names as names
@@ -66,6 +66,7 @@ echo "-----------------------------------------------------"
     --disable-silo \
     --enable-clm \
     --disable-ats_physics \
+    --with-python={python_interp} \
     {compilers} {flags} \
     --with-mpi=${{MPI_DIR}}
 
@@ -81,6 +82,7 @@ def bootstrap_amanzi(module_name,
     
     args = dict()
     args['module_name'] = module_name
+    args['python_interp'] = sys.executable
 
     if build_static:
         args['shared_libs'] = '--disable-shared'
@@ -150,6 +152,7 @@ echo "-----------------------------------------------------"
     --disable-silo \
     --enable-clm \
     --enable-reg_tests \
+    --with-python={python_interp} \
     --ats_dev \
     {compilers} {flags} \
     --with-mpi=${{MPI_DIR}}
@@ -163,6 +166,7 @@ def bootstrap_ats(module_name,
                   build_static=False):
     args = dict()
     args['module_name'] = module_name
+    args['python_interp'] = sys.executable
 
     if build_static:
         args['shared_libs'] = '--disable-shared'
