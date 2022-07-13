@@ -68,8 +68,7 @@ echo "-----------------------------------------------------"
     --disable-ats_physics \
     --with-python={python_interp} \
     {compilers} {flags} \
-    --with-mpi=${{MPI_DIR}} \
-    --with-python=`which python`
+    --with-mpi=${{MPI_DIR}}
 
 exit $?
 """ 
@@ -156,8 +155,7 @@ echo "-----------------------------------------------------"
     --with-python={python_interp} \
     --ats_dev \
     {compilers} {flags} \
-    --with-mpi=${{MPI_DIR}} \
-    --with-python=`which python`
+    --with-mpi=${{MPI_DIR}}
 
 exit $?
 """ 
