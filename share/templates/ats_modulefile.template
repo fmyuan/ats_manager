@@ -12,10 +12,9 @@ proc ModulesHelp {{ }} {{
 module-whatis   "ATS {ats} {build_type} build"
 # #############################################################################
 
-module purge
 {modulefiles}
 
-setenv MPI_DIR $env(MPICH_DIR)
+setenv MPI_DIR {mpi_dir}
 
 setenv AMANZI_TPLS_DIR {tpls_dir}
 setenv AMANZI_TPLS_BUILD_DIR {tpls_build_dir}
@@ -35,10 +34,9 @@ setenv AMANZI_TPLS_BUILD_TYPE {tpls_build_type}
 setenv AMANZI_TRILINOS_BUILD_TYPE {trilinos_build_type}
 setenv AMANZI_BUILD_TYPE {build_type}
 
+prepend-path    PATH            {tpls_dir}/bin
 prepend-path    PATH            {amanzi_dir}/bin
 prepend-path    PYTHONPATH      {tpls_dir}/SEACAS/lib
 prepend-path    PYTHONPATH      {amanzi_src_dir}/tools/amanzi_xml
 prepend-path    PYTHONPATH      {ats_src_dir}/tools/utils
 prepend-path    PYTHONPATH      {ats_src_dir}/tools/ats_meshing/ats_meshing
-
-
