@@ -23,7 +23,7 @@ def vendor_compilers(cc, cxx, fort):
     return _compiler_tmp.format(cc,cxx,fort)
 
 def mpi_compilers():
-    return _compiler_tmp.format('cc', 'CC', 'ftn')
+    return _compiler_tmp.format('mpicc', 'mpicxx', 'mpifort')
     
         
 _bootstrap_amanzi_template = \

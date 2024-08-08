@@ -12,7 +12,7 @@ module-whatis   "Amanzi {amanzi} {build_type} build"
 
 {modulefiles}
 
-setenv MPI_DIR {mpi_dir}
+setenv MPI_DIR /sw/baseline/spack-envs/base/opt/linux-rhel8-zen3/gcc-12.2.0/openmpi-4.0.4-bxes2wvty3q7v55qep7hiuud6rocd4bl
 
 setenv AMANZI_TPLS_DIR {tpls_dir}
 setenv AMANZI_TPLS_BUILD_DIR {tpls_build_dir}
