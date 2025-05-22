@@ -14,6 +14,7 @@ def fill_template(file_in, file_out, substitutions):
 
     with open(file_in,'r') as fin:
         template = fin.read()
+    print('checking: ', template)
     modfile = template.format(**substitutions)
     with open(file_out, 'w') as fout:
         fout.write(modfile)
@@ -42,9 +43,9 @@ def ats_modulefile_args(name, repo_name, tpls_name, modulefiles, **kwargs):
 def template_path(ats=False):
     """Returns the name of the template to be filled."""
     if ats:
-        return os.path.join(os.environ['ATS_BASE'],'ats_manager','share','templates','ats_modulefile.template')
+        return os.path.join(os.environ['ATS_MANAGER_DIR'],'ats_manager','share','templates','ats_modulefile.template')
     else:
-        return os.path.join(os.environ['ATS_BASE'],'ats_manager','share','templates','amanzi_modulefile.template')
+        return os.path.join(os.environ['ATS_MANAGER_DIR'],'ats_manager','share','templates','amanzi_modulefile.template')
 
 def create_modulefile(name, repo_name, tpls_name, **kwargs):
     """Sets up the name of the modulefile to be created.  Note this also

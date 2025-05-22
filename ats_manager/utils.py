@@ -9,7 +9,7 @@ def script_name(prefix, name):
 
 def run_cmd(prefix, name, cmd):
     script = script_name(prefix, name)
-    outfile = os.path.join(os.environ['ATS_BASE'], 'scripts', script)
+    outfile = os.path.join(os.environ['ATS_MANAGER_DIR'], 'scripts', script)
     with open(outfile,'w') as fid:
         fid.write(cmd)
     os.chmod(outfile, stat.S_IRWXU) # owner r/w/x
@@ -17,7 +17,7 @@ def run_cmd(prefix, name, cmd):
 
 def run_script(prefix, name):
     script = script_name(prefix, name)
-    outfile = os.path.join(os.environ['ATS_BASE'], 'scripts', script)
+    outfile = os.path.join(os.environ['ATS_MANAGER_DIR'], 'scripts', script)
     logging.info('Running {}'.format(script))
     logging.info('  file  {}'.format(outfile))
     assert(os.path.isfile(outfile))

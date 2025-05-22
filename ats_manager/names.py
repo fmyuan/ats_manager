@@ -70,7 +70,7 @@ def tpls_name(name):
 # paths to useful places
 def amanzi_src_dir(name):
     name_trip = name.split('/')
-    return os.path.join(os.environ['ATS_BASE'], name_trip[0], 'repos', name_trip[1])
+    return os.path.join(os.environ['ATS_MANAGER_DIR'], name_trip[0], 'repos', name_trip[1])
 
 def amanzi_install_dir(name):
     name_trip = name.split('/')
@@ -78,7 +78,7 @@ def amanzi_install_dir(name):
 
 def amanzi_build_dir(name):
     name_trip = name.split('/')
-    return os.path.join(os.environ['ATS_BASE'], name_trip[0], 'build', name_trip[1], name_trip[2], name_trip[3], name_trip[4])
+    return os.path.join(os.environ['ATS_MANAGER_DIR'], name_trip[0], 'build', name_trip[1], name_trip[2], name_trip[3], name_trip[4])
 
 def ats_src_dir(name):
     return os.path.join(amanzi_src_dir(name), ats_submodule)
@@ -89,7 +89,7 @@ def ats_regression_tests_dir(name):
 
 def tpls_build_dir(name):
     tpls_trip = name.split('/')
-    return os.path.join(os.environ['ATS_BASE'], tpls_trip[0], 'build', tpls_trip[1], tpls_trip[2], tpls_trip[3], tpls_trip[4])
+    return os.path.join(os.environ['ATS_MANAGER_DIR'], tpls_trip[0], 'build', tpls_trip[1], tpls_trip[2], tpls_trip[3], tpls_trip[4])
 
 def tpls_install_dir(name):
     tpls_trip = name.split('/')
